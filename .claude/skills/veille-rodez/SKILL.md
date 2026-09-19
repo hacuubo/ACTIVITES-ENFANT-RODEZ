@@ -73,3 +73,15 @@ Max 1 requête/seconde. Si introuvable : géocoder la mairie de la commune et le
 ## 5. Compte rendu (fin de session)
 
 Donner en 10 lignes maximum : nombre total d'événements, nouveaux, supprimés, sources injoignables cette semaine, événements notables à venir (fête foraine, cirque, Noël…), et toute anomalie à corriger dans l'application.
+
+## Retours d'expérience (mis à jour à chaque veille)
+
+- **mediatheque.ville-rodez.fr** répond souvent 503 : réessayer plus tard dans la session, sinon passer par les fiches Diffusio de ville-rodez.fr ou par oazis.app.
+- **Listes Diffusio** (ville-rodez.fr/agenda, rodezagglo.fr) : seuls ~15 items sont rendus côté serveur et la pagination AJAX ne fonctionne pas ; compléter par les sites des musées et des communes, et par des recherches web ciblées (`site:ville-rodez.fr <mois>`).
+- **oazis.app**, **onet-le-chateau.fr** : accessibles via WebFetch uniquement (curl bloqué).
+- **aveyron.fr** : anti-bot, contenu inaccessible → utiliser tourisme-aveyron.com et la presse.
+- **12.agendaculturel.fr**, **helloasso.com** (listes), **maisondulivre.com** : 403 → passer par WebSearch avec `site:` pour lire les extraits, ou ignorer.
+- **Programmes publiés tardivement** : stages MJC (≈3 semaines avant les vacances), Halloween au Haras de Rodez et Noël à Rodez (marché place Foch, patinoire, village du Père Noël : publication en novembre), patinoire d'Onet, Téléthon, animations Aquavallon des vacances. Les rechercher explicitement à chaque veille tant qu'ils ne sont pas publiés.
+- **Cirques de passage** : rechercher `cirque Rodez <mois> <année>` et les pages Facebook publiques via la recherche ; aucun n'était annoncé au 19/09/2026.
+- **Nominatim** renvoie parfois 429 : attendre 2 s et réessayer ; si un lieu est introuvable, géocoder la mairie et le signaler dans `description`.
+- Exclus car au-delà de 20 km : Espalion (Calmont d'Olt), Salmiech, Villefranche-de-Rouergue, Conques, Naucelle.

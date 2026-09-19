@@ -4,7 +4,7 @@ Usage : python3 scripts/merge.py --from 2026-09-19 --to 2027-01-10 fichier1.json
 - dédoublonne par id, puis par (titre normalisé, date, ville)
 - supprime les événements terminés avant hier
 - trie par date puis heure et écrit data/events.json avec updated_at"""
-import argparse, datetime, json, pathlib, re, unicodedata, sys
+import argparse, datetime, difflib, json, pathlib, re, unicodedata, sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 OUT = ROOT / 'data' / 'events.json'
@@ -15,6 +15,38 @@ def norm(s):
 
 def slug_id(e):
     return f"{norm(e['title'])[:60]}_{e['date']}_{norm(e['city'])}"
+
+def fix_id(e):
+    parts = str(e.get('id') or '').split('_')
+    if len(parts) == 3 and re.fullmatch(r'\d{4}-\d{2}-\d{2}', parts[1]):
+        return f"{norm(parts[0])[:60]}_{parts[1]}_{norm(parts[2])}"
+    return slug_id(e)
+
+def same_event(a, b):
+    """Même jour, même lieu (ou même ville) et titres proches, ou même titre normalisé."""
+    if a['date'] != b['date']: return False
+    ta, tb = norm(a['title']), norm(b['title'])
+    if ta == tb: return True
+    same_place = norm(a.get('venue'))[:15] == norm(b.get('venue'))[:15] or (
+        norm(a['city']) == norm(b['city']) and (a.get('time') or '') == (b.get('time') or '') and a.get('time'))
+    if not same_place: return False
+    ratio = difflib.SequenceMatcher(None, ta, tb).ratio()
+    if ratio >= 0.6: return True
+    # même créneau, même lieu exact, même tranche d'âge : très probablement identique
+    return (norm(a.get('venue')) == norm(b.get('venue')) and (a.get('time') or '') == (b.get('time') or '')
+            and a.get('age_min') == b.get('age_min') and a.get('age_max') == b.get('age_max') and ratio >= 0.4)
+
+def completeness(e):
+    return sum(1 for v in e.values() if v not in (None, '', []))
+
+def fuse(keep, other):
+    """Complète les champs vides de `keep` avec ceux de `other` ; garde l'id le plus ancien (favoris)."""
+    for k, v in other.items():
+        if keep.get(k) in (None, '', []) and v not in (None, '', []): keep[k] = v
+    if len(other.get('description') or '') > len(keep.get('description') or ''): keep['description'] = other['description']
+    tags = list(dict.fromkeys((keep.get('tags') or []) + (other.get('tags') or [])))
+    if tags: keep['tags'] = tags
+    return keep
 
 ap = argparse.ArgumentParser()
 ap.add_argument('files', nargs='*')
@@ -35,22 +67,23 @@ for f in args.files:
     events += [e for e in payload if isinstance(e, dict)]
 
 yesterday = str(datetime.date.today() - datetime.timedelta(days=1))
-merged, by_id, by_key = [], {}, {}
+merged, by_id = [], {}
 for e in events:
     if not e.get('title') or not e.get('date') or not e.get('city'): continue
-    e.setdefault('id', slug_id(e))
-    e['id'] = norm(e['id'].replace('_', '|')).replace('|', '_') if '_' in e['id'] else slug_id(e)
+    e['id'] = fix_id(e)
     end = e.get('end_date') or e['date']
     if end < yesterday: continue
     if args.dto and e['date'] > args.dto: continue
-    key = (norm(e['title']), e['date'], norm(e['city']))
-    dup = by_id.get(e['id']) or by_key.get(key)
+    dup = by_id.get(e['id']) or next((m for m in merged if same_event(m, e)), None)
     if dup:
-        # garde la version la plus complète (le plus de champs renseignés)
-        if sum(1 for v in e.values() if v not in (None, '', [])) > sum(1 for v in dup.values() if v not in (None, '', [])):
-            merged[merged.index(dup)] = e; by_id[e['id']] = e; by_key[key] = e
+        # garde la version la plus complète, complétée par l'autre ; conserve l'id déjà connu (favoris)
+        if completeness(e) > completeness(dup):
+            e['id'] = dup['id']
+            merged[merged.index(dup)] = fuse(e, dup); by_id[e['id']] = merged[merged.index(e)]
+        else:
+            fuse(dup, e)
         continue
-    merged.append(e); by_id[e['id']] = e; by_key[key] = e
+    merged.append(e); by_id[e['id']] = e
 
 merged.sort(key=lambda e: (e['date'], e.get('time') or '00:00', e['title']))
 now = datetime.datetime.now().astimezone().replace(microsecond=0).isoformat()
