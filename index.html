@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Sorties Enfants Rodez</title>
+  <meta name="description" content="Agenda des activités pour enfants de 1 à 15 ans à Rodez et dans un rayon de 20 km : spectacles, ateliers, fêtes, musées, sport, nature.">
+  <meta name="theme-color" content="#ff7a59" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#1c1a2e" media="(prefers-color-scheme: dark)">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Sorties Rodez">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon-180.png">
+  <link rel="stylesheet" href="vendor/leaflet/leaflet.min.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar__row">
+      <h1 class="brand"><span class="brand__logo" aria-hidden="true">🎈</span> Sorties Enfants <small>Rodez &amp; alentours</small></h1>
+      <button id="btn-install" class="btn btn--ghost" hidden>Installer</button>
+    </div>
+    <nav class="tabs" role="tablist" aria-label="Vues">
+      <button class="tab is-active" role="tab" data-view="calendar" aria-selected="true">📅 Mois</button>
+      <button class="tab" role="tab" data-view="map" aria-selected="false">🗺️ Jour &amp; carte</button>
+      <button class="tab" role="tab" data-view="favorites" aria-selected="false">⭐ Favoris</button>
+    </nav>
+    <div class="filters" aria-label="Filtrer par âge">
+      <span class="filters__label">Âge</span>
+      <div class="chips" id="age-chips">
+        <button class="chip is-active" data-age="all">Tous</button>
+        <button class="chip" data-age="1-2">1-2 ans</button>
+        <button class="chip" data-age="3-5">3-5 ans</button>
+        <button class="chip" data-age="6-10">6-10 ans</button>
+        <button class="chip" data-age="11-15">Ados 11-15</button>
+      </div>
+    </div>
+  </header>
+
+  <main id="app">
+    <!-- Vue calendrier -->
+    <section id="view-calendar" class="view is-active" role="tabpanel">
+      <div class="cal">
+        <div class="cal__head">
+          <button class="btn btn--icon" id="cal-prev" aria-label="Mois précédent">‹</button>
+          <button class="cal__title" id="cal-title" type="button" title="Revenir à aujourd'hui">Septembre 2026</button>
+          <button class="btn btn--icon" id="cal-next" aria-label="Mois suivant">›</button>
+        </div>
+        <div class="cal__weekdays">
+          <span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span>
+        </div>
+        <div class="cal__grid" id="cal-grid"></div>
+      </div>
+      <div class="daylist">
+        <h3 class="daylist__title" id="daylist-title"></h3>
+        <div id="daylist" class="events"></div>
+      </div>
+    </section>
+
+    <!-- Vue jour + carte -->
+    <section id="view-map" class="view" role="tabpanel" hidden>
+      <div class="daynav">
+        <button class="btn btn--icon" id="day-prev" aria-label="Jour précédent">‹</button>
+        <label class="daynav__date">
+          <span id="day-label">Aujourd'hui</span>
+          <input type="date" id="day-input" aria-label="Choisir une date">
+        </label>
+        <button class="btn btn--icon" id="day-next" aria-label="Jour suivant">›</button>
+        <button class="btn btn--ghost" id="day-today">Aujourd'hui</button>
+      </div>
+      <div id="map" class="map" aria-label="Carte des activités du jour"></div>
+      <p class="map__hint">Touchez un repère pour voir l'activité. <span id="map-count"></span></p>
+      <div id="maplist" class="events"></div>
+    </section>
+
+    <!-- Vue favoris -->
+    <section id="view-favorites" class="view" role="tabpanel" hidden>
+      <h2 class="section-title">Ma sélection</h2>
+      <p class="muted">Vos favoris sont enregistrés sur ce téléphone.</p>
+      <div id="favlist" class="events"></div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span id="updated-at">Chargement des activités…</span>
+    <span> · Mise à jour automatique chaque mercredi</span>
+  </footer>
+
+  <!-- Fiche détaillée (bottom sheet) -->
+  <div id="sheet" class="sheet" hidden>
+    <div class="sheet__backdrop" data-close></div>
+    <article class="sheet__panel" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+      <div class="sheet__handle" data-close></div>
+      <div id="sheet-content"></div>
+    </article>
+  </div>
+
+  <template id="tpl-event">
+    <article class="event">
+      <button class="event__main" type="button">
+        <span class="event__time"></span>
+        <span class="event__body">
+          <span class="event__title"></span>
+          <span class="event__summary"></span>
+          <span class="event__meta">
+            <span class="badge badge--city"></span>
+            <span class="badge badge--age"></span>
+            <span class="badge badge--cat"></span>
+          </span>
+        </span>
+      </button>
+      <button class="event__fav" type="button" aria-label="Ajouter aux favoris">☆</button>
+    </article>
+  </template>
+
+  <script src="vendor/leaflet/leaflet.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

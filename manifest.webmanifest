@@ -1,0 +1,19 @@
+{
+  "name": "Sorties Enfants Rodez",
+  "short_name": "Sorties Rodez",
+  "description": "Activités pour enfants de 1 à 15 ans à Rodez et dans un rayon de 20 km : spectacles, ateliers, fêtes, musées, sport, nature.",
+  "lang": "fr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#fff8f2",
+  "theme_color": "#ff7a59",
+  "categories": ["kids", "entertainment", "lifestyle"],
+  "icons": [
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

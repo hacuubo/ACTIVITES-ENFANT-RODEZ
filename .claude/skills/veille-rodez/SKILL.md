@@ -1,0 +1,75 @@
+---
+name: veille-rodez
+description: Procédure hebdomadaire de veille des activités enfants (1-15 ans) à Rodez et 20 km alentour, qui régénère data/events.json et le publie. Utilisée par la Routine du mercredi.
+---
+
+# Veille hebdomadaire « Sorties Enfants Rodez »
+
+Objectif : produire un `data/events.json` **exhaustif, vérifié et à jour** couvrant les **16 prochaines semaines** (à partir d'aujourd'hui), pour des enfants de 1 à 15 ans, en famille, seuls ou entre amis, à **Rodez et dans un rayon de 20 km**. Puis valider, committer et pousser.
+
+Ne jamais inventer un événement. Chaque entrée doit provenir d'une page consultée (champ `source`).
+
+## 0. Préparation
+
+1. Se placer dans le dépôt (`git status`). S'il n'est pas cloné : `git clone https://github.com/hacuubo/ACTIVITES-ENFANT-RODEZ` (attacher le dépôt avec `add_repo` si nécessaire).
+2. `git fetch origin` puis se placer sur la branche par défaut (`git remote show origin | grep 'HEAD branch'`) à jour.
+3. Lire `docs/SCHEMA.md` (format des données) et le `data/events.json` courant (pour conserver les événements encore valides et leurs `id`, qui servent aux favoris des utilisateurs).
+4. Créer un dossier de travail dans le scratchpad : un fichier JSON par famille de sources.
+
+## 1. Collecte (répartir sur 4 à 6 agents en parallèle)
+
+Pour chaque famille, faire des recherches web (WebSearch, requêtes en français, avec le mois et l'année) puis lire les pages (WebFetch) pour extraire : titre, date(s), horaires, lieu, adresse, tranche d'âge, prix, téléphone, lien de réservation.
+
+### A. Institutions
+- Ville de Rodez : https://www.ville-rodez.fr/agenda/ ; Médiathèque : https://mediatheque.ville-rodez.fr/agenda/ ; Ludothèque, Maison des jeunes, centres sociaux, MJC : https://www.mjcrodez.fr/agenda/
+- Rodez Agglomération : https://www.rodezagglo.fr/informations-pratiques/agenda-des-manifestations/ ; Musée Fenaille, Musée Soulages (https://musee-soulages-rodez.fr), Musée Denys-Puech, piscine Aquavallon, conservatoire.
+- Office de tourisme : https://www.rodez-tourisme.fr/agenda/ (rubriques famille, grands événements, marchés, Noël)
+- Département de l'Aveyron : https://aveyron.fr (agenda, archives départementales, Aveyron Culture), https://www.tourisme-aveyron.com
+- Mairies (agenda / actualités) : Onet-le-Château, Luc-la-Primaube, Sébazac-Concourès, Olemps, Le Monastère, Sainte-Radegonde, Druelle-Balsac, Baraqueville, Marcillac-Vallon, Bozouls, Laissac-Séverac-l'Église, Salles-la-Source, Pont-de-Salars, Flavin, Agen-d'Aveyron, Calmont, Clairvaux-d'Aveyron, Moyrazès.
+
+### B. Lieux culturels
+- Salles : Le Club (Onet), La Baleine (Onet), Amphithéâtre de Rodez, Salle des fêtes de Rodez, La Menuiserie, Maison du Peuple, théâtres et compagnies (marionnettes, cirque, conte).
+- Cinémas : CGR Rodez (séances jeune public, ciné-goûter, avant-premières), festivals de cinéma jeune public.
+- Musées et patrimoine : ateliers vacances, visites famille, nocturnes, Journées du patrimoine, Nuit des musées, Fête de la science.
+- Librairies et médiathèques : bébés lecteurs, heure du conte, dédicaces jeunesse, salons du livre.
+
+### C. Fêtes, loisirs, saisons
+- Fête foraine et foires de Rodez, cirques de passage (Medrano, Zavatta, etc.), carnaval, Halloween, Marché de Noël, patinoire, Père Noël, spectacles de Noël, feux d'artifice, Téléthon, fêtes votives des communes, chasse aux œufs, fête de la musique, 14 juillet, festivals d'été (Estivada…), Rodez plage.
+- Loisirs : trampoline park, laser game, bowling, escape game, accrobranche, parcs de loisirs, fermes pédagogiques, poney-clubs, Haras national, Cascades de Salles-la-Source, Terra Memoria (Bozouls), base de loisirs de Pont-de-Salars, piscines : **inclure uniquement des créneaux datés** (animations, horaires vacances, stages), pas l'ouverture permanente.
+- Sport : matchs avec animations jeunes (RAF, rugby…), courses familles, fête du sport, baptêmes, tournois ouverts.
+
+### D. Associations, ateliers, ados
+- Ateliers datés : éveil musical, créatifs, cuisine, sciences (Petits Débrouillards, Fête de la science), codage, nature (CPIE, LPO Aveyron), parents-enfants, bébés nageurs.
+- Stages de vacances (multi-sports, arts, cirque, théâtre, langues) : vérifier le calendrier scolaire zone C.
+- Ados 11-15 : concerts, e-sport, ateliers vidéo/podcast, soirées, sorties organisées par les espaces jeunes / PIJ.
+- Sources : sites des associations, https://www.helloasso.com (événements Rodez), pages publiques Facebook via recherche, Familles Rurales, Francas, Léo Lagrange, UFOLEP/USEP.
+
+### E. Agrégateurs et presse (pour ne rien rater)
+- https://12.agendaculturel.fr/jeune-public/ , https://oazis.app/sorties/rodez/enfants , Unidivers Rodez, Kidiklik / Citizenkid Aveyron, https://www.ladepeche.fr (Rodez sorties), https://www.centrepresseaveyron.fr (agenda), Sortir en Aveyron, Bougeenfamille, Le Petit Moutard.
+
+Requêtes utiles : `"Rodez" enfants <mois> <année>`, `spectacle jeune public Rodez <mois>`, `atelier enfants Onet-le-Château`, `marionnettes Aveyron <année>`, `cirque Rodez <année>`, `fête foraine Rodez`, `Halloween Rodez`, `marché de Noël Rodez <année>`, `stage vacances <Toussaint|Noël|février|Pâques|été> Rodez enfants`, `ados Rodez sortie <mois>`.
+
+## 2. Géocodage
+
+Pour chaque lieu (une fois par lieu) :
+```
+curl -sS -A "activites-enfant-rodez/1.0" "https://nominatim.openstreetmap.org/search?q=<lieu, ville>&format=json&limit=1"
+```
+Max 1 requête/seconde. Si introuvable : géocoder la mairie de la commune et le signaler dans `description`. Rejeter tout lieu à plus de 20 km de Rodez (44.3506, 2.5750).
+
+## 3. Assemblage et contrôle
+
+1. Fusionner : `python3 scripts/merge.py --keep-existing --from <aujourd'hui> --to <aujourd'hui + 16 semaines> <fichiers de recherche>` (dédoublonne, retire le passé, trie, écrit `updated_at`).
+2. Re-vérifier les événements conservés de l'ancien fichier dont `source_checked` a plus de 3 semaines : rouvrir la source ; supprimer ceux annulés ou introuvables ; mettre à jour `source_checked`.
+3. `python3 scripts/validate.py` doit passer sans erreur (corriger jusqu'à 0 erreur).
+4. Contrôle qualité : `summary` d'une phrase claire, `age_min`/`age_max` cohérents, `audience` juste (`ados` si réservé aux 11-15), `price` renseigné, téléphone au format `05 65 00 00 00`, catégories exactes.
+
+## 4. Publication
+
+1. `git add data/events.json` (uniquement les données, sauf correction nécessaire d'un script).
+2. Commit : `Veille du <date> : N activités (M nouvelles)`.
+3. `git push -u origin <branche par défaut>` (retenter 4 fois avec attente 2/4/8/16 s en cas d'erreur réseau). Le workflow GitHub Pages redéploie l'application automatiquement.
+
+## 5. Compte rendu (fin de session)
+
+Donner en 10 lignes maximum : nombre total d'événements, nouveaux, supprimés, sources injoignables cette semaine, événements notables à venir (fête foraine, cirque, Noël…), et toute anomalie à corriger dans l'application.
