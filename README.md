@@ -35,6 +35,7 @@ data/events.json      LES DONNÉES (mises à jour chaque mercredi)
 docs/SCHEMA.md        format des données
 scripts/validate.py   validation du fichier de données (utilisé en CI)
 scripts/merge.py      fusion des fichiers de recherche → data/events.json
+scripts/kefesh.py     croisement avec l'agenda enfants de kefesh.fr (événements manquants)
 .claude/skills/veille-rodez/SKILL.md   procédure suivie par la Routine hebdomadaire
 .github/workflows/pages.yml            validation + déploiement GitHub Pages
 ```
@@ -45,9 +46,10 @@ Aucune étape de build : ouvrir `index.html` via un serveur statique suffit (`py
 
 La Routine (Claude Code, chaque mercredi matin) suit `.claude/skills/veille-rodez/SKILL.md` :
 1. recherche large (institutions, lieux culturels, fêtes et loisirs, associations, agrégateurs et presse) sur les 16 semaines à venir ;
-2. géocodage des lieux (Nominatim / OpenStreetMap) ;
-3. fusion, dédoublonnage, validation (`scripts/validate.py`) ;
-4. commit + push de `data/events.json` → redéploiement automatique.
+2. croisement avec la rubrique enfants de kefesh.fr : tout événement absent est retrouvé à sa source officielle et ajouté ;
+3. géocodage des lieux (Nominatim / OpenStreetMap) ;
+4. fusion, dédoublonnage, validation (`scripts/validate.py`) ;
+5. commit + push de `data/events.json` → redéploiement automatique.
 
 Pour lancer une mise à jour à la main : ouvrir une session Claude Code sur ce dépôt et demander « suis la procédure veille-rodez ». Configuration de la Routine : voir `docs/ROUTINE.md`.
 

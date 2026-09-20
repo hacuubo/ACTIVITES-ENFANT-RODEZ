@@ -39,7 +39,8 @@ Fichier unique lu par l'application. Il est régénéré chaque mercredi par la 
 | `booking_url` | string ou `null` | non | Lien de billetterie / inscription. |
 | `source` | string | oui | URL de la page où l'info a été trouvée (traçabilité). |
 | `source_checked` | `YYYY-MM-DD` | oui | Date de dernière vérification. |
-| `tags` | array de string | non | Mots-clés libres : `marionnettes`, `halloween`, `noel`, `gratuit`, `pluie-ok`, `exterieur`, `vacances`... |
+| `tags` | array de string | non | Mots-clés libres : `marionnettes`, `halloween`, `noel`, `gratuit`, `pluie-ok`, `exterieur`, `vacances`, `kefesh` (repéré via Kefesh), `a-confirmer` (pas de page officielle trouvée)... |
+| `secondary_sources` | array de string | non | Autres pages où l'événement est annoncé (ex. fiche Kefesh), pour recouper. |
 
 ## Règles
 

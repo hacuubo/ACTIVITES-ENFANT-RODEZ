@@ -59,6 +59,14 @@ Objectif : ne rater aucune occasion sportive ouverte aux enfants **datée** (pas
 
 Requêtes utiles : `"Rodez" enfants <mois> <année>`, `spectacle jeune public Rodez <mois>`, `atelier enfants Onet-le-Château`, `marionnettes Aveyron <année>`, `cirque Rodez <année>`, `fête foraine Rodez`, `Halloween Rodez`, `marché de Noël Rodez <année>`, `stage vacances <Toussaint|Noël|février|Pâques|été> Rodez enfants`, `ados Rodez sortie <mois>`.
 
+### G. Croisement avec Kefesh (obligatoire, après la collecte A-F)
+[Kefesh](https://www.kefesh.fr) est un agenda de sorties à Rodez tenu par des bénévoles ; sa rubrique « Pour les enfants » (https://www.kefesh.fr/pour-les-enfants) sert de **filet de sécurité** : tout ce qu'elle contient et que nous n'avons pas doit être retrouvé à la source et ajouté.
+1. Lancer `python3 scripts/kefesh.py --out <scratch>/kefesh_manquants.json` : le script interroge l'API du site (rubrique enfants) et liste les événements à venir absents de `data/events.json`. Avec `--all`, il ajoute la rubrique « L'agenda » (tout public) : y repérer les sorties familiales (spectacles tout public, fêtes, matchs, marchés de Noël) et ignorer les conférences, concerts de bar, soirées adultes.
+2. Pour **chaque** événement manquant : ouvrir le lien `source_hint` (site de l'organisateur fourni par Kefesh) ou, s'il manque, chercher l'organisateur (WebSearch `"<titre>" <lieu> <année>`) et lire la page officielle. Vérifier date, horaire, âge, prix, réservation, téléphone. Créer l'entrée au format `docs/SCHEMA.md` avec `source` = page officielle ; si aucune page officielle n'existe, `source` = fiche Kefesh (`kefesh_url`) et ajouter le tag `a-confirmer`. Dans tous les cas, ajouter le tag `kefesh` et renseigner `secondary_sources` avec l'URL de la fiche Kefesh.
+3. Si Kefesh donne une date ou un horaire différent des nôtres pour un événement déjà présent, retourner à la source officielle et corriger.
+4. Ne rien copier du texte de Kefesh : rédiger `summary` et `description` à partir de la source officielle.
+5. Dans le compte rendu : nombre d'événements Kefesh croisés, ajoutés, corrigés, et ceux écartés (hors cible ou hors zone) avec la raison.
+
 ## 2. Géocodage
 
 Pour chaque lieu (une fois par lieu) :
