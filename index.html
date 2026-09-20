@@ -25,7 +25,7 @@
     </div>
     <nav class="tabs" role="tablist" aria-label="Vues">
       <button class="tab is-active" role="tab" data-view="calendar" aria-selected="true">📅 Mois</button>
-      <button class="tab" role="tab" data-view="map" aria-selected="false">🗺️ Jour &amp; carte</button>
+      <button class="tab" role="tab" data-view="map" aria-selected="false">🗺️ Carte</button>
       <button class="tab" role="tab" data-view="favorites" aria-selected="false">⭐ Favoris</button>
     </nav>
     <div class="filters" aria-label="Filtrer par âge">
@@ -60,20 +60,31 @@
       </div>
     </section>
 
-    <!-- Vue jour + carte -->
-    <section id="view-map" class="view" role="tabpanel" hidden>
+    <!-- Vue carte -->
+    <section id="view-map" class="view mapview" role="tabpanel" hidden>
       <div class="daynav">
         <button class="btn btn--icon" id="day-prev" aria-label="Jour précédent">‹</button>
-        <label class="daynav__date">
-          <span id="day-label">Aujourd'hui</span>
-          <input type="date" id="day-input" aria-label="Choisir une date">
-        </label>
+        <button class="daynav__date" id="day-toggle" type="button" aria-expanded="false" aria-controls="map-cal">
+          <span id="day-label">Aujourd'hui</span> <span class="daynav__chevron" aria-hidden="true">▾</span>
+        </button>
         <button class="btn btn--icon" id="day-next" aria-label="Jour suivant">›</button>
-        <button class="btn btn--ghost" id="day-today">Aujourd'hui</button>
       </div>
-      <div id="map" class="map" aria-label="Carte des activités du jour"></div>
-      <p class="map__hint">Touchez un repère pour voir l'activité. <span id="map-count"></span></p>
-      <div id="maplist" class="events"></div>
+      <div class="mapwrap">
+        <div id="map-cal" class="cal cal--overlay" hidden>
+          <div class="cal__head">
+            <button class="btn btn--icon" id="mcal-prev" aria-label="Mois précédent">‹</button>
+            <button class="cal__title" id="mcal-title" type="button" title="Revenir à aujourd'hui"></button>
+            <button class="btn btn--icon" id="mcal-next" aria-label="Mois suivant">›</button>
+          </div>
+          <div class="cal__weekdays">
+            <span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span>
+          </div>
+          <div class="cal__grid" id="mcal-grid"></div>
+        </div>
+        <div id="map" class="map" aria-label="Carte des activités du jour"></div>
+        <div class="catfilter" id="cat-filter" aria-label="Filtrer par type d'activité"></div>
+        <p class="map__count" id="map-count"></p>
+      </div>
     </section>
 
     <!-- Vue favoris -->

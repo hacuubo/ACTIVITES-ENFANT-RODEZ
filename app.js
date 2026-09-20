@@ -27,7 +27,9 @@
     month: startOfMonth(new Date()),
     selected: todayISO(),
     mapDay: todayISO(),
+    mapMonth: startOfMonth(new Date()),
     ages: new Set(['all']),
+    cats: new Set(['all']),
     favorites: loadFavorites(),
     map: null,
     markers: null,
@@ -80,9 +82,10 @@
     if (Array.isArray(e.days_of_week) && e.days_of_week.length) return e.days_of_week.includes(isoWeekday(iso));
     return true;
   }
-  function eventsOn(iso, withFilter = true) {
+  function matchesCat(e) { return state.cats.has('all') || state.cats.has(catOf(e)); }
+  function eventsOn(iso, withFilter = true, withCat = false) {
     return state.events
-      .filter(e => occursOn(e, iso) && (!withFilter || matchesAge(e)))
+      .filter(e => occursOn(e, iso) && (!withFilter || matchesAge(e)) && (!withCat || matchesCat(e)))
       .sort((a, b) => (a.time || '00:00').localeCompare(b.time || '00:00') || a.title.localeCompare(b.title));
   }
 
@@ -120,30 +123,28 @@
     events.forEach(e => container.appendChild(renderEventCard(e, dayIso)));
   }
 
-  // ---------- Vue calendrier ----------
-  const calGrid = document.getElementById('cal-grid');
-  const calTitle = document.getElementById('cal-title');
-  function renderCalendar() {
-    calTitle.textContent = fmtMonth(state.month);
-    calGrid.innerHTML = '';
-    const y = state.month.getFullYear(), m = state.month.getMonth();
+  // ---------- Calendrier (réutilisé par la vue Mois et la vue Carte) ----------
+  function renderCalendarInto(gridEl, titleEl, month, selected, onSelect, withCat) {
+    titleEl.textContent = fmtMonth(month);
+    gridEl.innerHTML = '';
+    const y = month.getFullYear(), m = month.getMonth();
     const first = new Date(y, m, 1);
     const offset = (first.getDay() + 6) % 7; // lundi = 0
     const daysInMonth = new Date(y, m + 1, 0).getDate();
     const today = todayISO();
     for (let i = 0; i < offset; i++) {
-      const pad = document.createElement('div'); pad.className = 'day day--pad'; calGrid.appendChild(pad);
+      const pad = document.createElement('div'); pad.className = 'day day--pad'; gridEl.appendChild(pad);
     }
     for (let d = 1; d <= daysInMonth; d++) {
       const iso = toISO(new Date(y, m, d));
-      const evs = eventsOn(iso);
+      const evs = eventsOn(iso, true, withCat);
       const btn = document.createElement('button');
       btn.className = 'day';
       btn.type = 'button';
       btn.dataset.date = iso;
       btn.setAttribute('aria-label', cap(fmtDayLong(iso)) + (evs.length ? `, ${evs.length} activité(s)` : ''));
       if (iso === today) btn.classList.add('is-today');
-      if (iso === state.selected) btn.classList.add('is-selected');
+      if (iso === selected) btn.classList.add('is-selected');
       if (evs.length) btn.classList.add('has-events');
       let html = `<span>${d}</span>`;
       if (evs.length) {
@@ -154,9 +155,15 @@
         html += '<span class="day__dots"></span>';
       }
       btn.innerHTML = html;
-      btn.addEventListener('click', () => { state.selected = iso; renderCalendar(); renderDayList(); });
-      calGrid.appendChild(btn);
+      btn.addEventListener('click', () => onSelect(iso));
+      gridEl.appendChild(btn);
     }
+  }
+
+  // ---------- Vue Mois ----------
+  function renderCalendar() {
+    renderCalendarInto(document.getElementById('cal-grid'), document.getElementById('cal-title'), state.month, state.selected,
+      iso => { state.selected = iso; renderCalendar(); renderDayList(); }, false);
   }
   function renderDayList() {
     const evs = eventsOn(state.selected);
@@ -167,28 +174,65 @@
   document.getElementById('cal-prev').addEventListener('click', () => { state.month = new Date(state.month.getFullYear(), state.month.getMonth() - 1, 1); renderCalendar(); });
   document.getElementById('cal-next').addEventListener('click', () => { state.month = new Date(state.month.getFullYear(), state.month.getMonth() + 1, 1); renderCalendar(); });
 
-  // ---------- Vue jour + carte ----------
-  const dayInput = document.getElementById('day-input');
+  // ---------- Vue Carte ----------
+  const mapCal = document.getElementById('map-cal');
+  const dayToggle = document.getElementById('day-toggle');
   function ensureMap() {
     if (state.map) return;
     if (typeof L === 'undefined') {
       document.getElementById('map').innerHTML = '<p class="map__fallback">Carte indisponible pour le moment.</p>';
       return;
     }
-    state.map = L.map('map', { zoomControl: true, tap: true }).setView(RODEZ, 11);
+    state.map = L.map('map', { zoomControl: false, tap: true }).setView(RODEZ, 11);
+    L.control.zoom({ position: 'bottomleft' }).addTo(state.map);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 18,
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     }).addTo(state.map);
     state.markers = L.layerGroup().addTo(state.map);
   }
+  function renderMapCalendar() {
+    renderCalendarInto(document.getElementById('mcal-grid'), document.getElementById('mcal-title'), state.mapMonth, state.mapDay,
+      iso => { state.mapDay = iso; toggleMapCal(false); renderMapDay(); }, true);
+  }
+  function toggleMapCal(open) {
+    const show = open == null ? mapCal.hidden : open;
+    mapCal.hidden = !show;
+    dayToggle.setAttribute('aria-expanded', show);
+    dayToggle.classList.toggle('is-open', show);
+    if (show) { state.mapMonth = startOfMonth(fromISO(state.mapDay)); renderMapCalendar(); }
+  }
+  function renderCatFilter() {
+    const box = document.getElementById('cat-filter');
+    box.innerHTML = '';
+    const present = new Set(state.events.map(catOf));
+    const keys = ['all', ...Object.keys(CAT_META).filter(k => present.has(k))];
+    keys.forEach(k => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'catbtn' + (state.cats.has('all') || state.cats.has(k) ? ' is-on' : '');
+      b.dataset.cat = k;
+      if (k === 'all') { b.textContent = 'Tous'; b.classList.add('catbtn--all'); b.title = 'Toutes les activités'; }
+      else { b.innerHTML = `<span>${CAT_META[k].emoji}</span>`; b.style.setProperty('--cat', `var(--cat-${k})`); b.title = CAT_META[k].label; b.setAttribute('aria-label', CAT_META[k].label); }
+      b.setAttribute('aria-pressed', state.cats.has(k));
+      b.addEventListener('click', () => {
+        if (k === 'all') state.cats = new Set(['all']);
+        else {
+          state.cats.delete('all');
+          if (state.cats.has(k)) state.cats.delete(k); else state.cats.add(k);
+          if (!state.cats.size) state.cats.add('all');
+        }
+        try { localStorage.setItem('cats', JSON.stringify([...state.cats])); } catch { /* ignore */ }
+        renderCatFilter(); renderMapDay(); if (!mapCal.hidden) renderMapCalendar();
+      });
+      box.appendChild(b);
+    });
+  }
   function renderMapDay() {
     const iso = state.mapDay;
     document.getElementById('day-label').textContent = (iso === todayISO() ? "Aujourd'hui · " : '') + fmtDayShort(iso);
-    dayInput.value = iso;
-    const evs = eventsOn(iso);
-    document.getElementById('map-count').textContent = evs.length ? `${evs.length} activité${evs.length > 1 ? 's' : ''} ce jour.` : 'Aucune activité ce jour.';
-    renderList(document.getElementById('maplist'), evs, iso, 'Aucune activité trouvée ce jour-là pour cet âge.');
+    const evs = eventsOn(iso, true, true);
+    document.getElementById('map-count').textContent = evs.length ? `${evs.length} activité${evs.length > 1 ? 's' : ''} · touchez un repère` : 'Aucune activité ce jour pour ces filtres';
     ensureMap();
     if (!state.map) return;
     state.markers.clearLayers();
@@ -212,15 +256,17 @@
     });
     setTimeout(() => {
       state.map.invalidateSize();
-      if (bounds.length > 1) state.map.fitBounds(bounds, { padding: [30, 30], maxZoom: 14 });
+      if (bounds.length > 1) state.map.fitBounds(bounds, { paddingTopLeft: [30, 30], paddingBottomRight: [80, 70], maxZoom: 14 });
       else if (bounds.length === 1) state.map.setView(bounds[0], 13);
       else state.map.setView(RODEZ, 11);
     }, 50);
   }
-  document.getElementById('day-prev').addEventListener('click', () => { state.mapDay = addDays(state.mapDay, -1); renderMapDay(); });
-  document.getElementById('day-next').addEventListener('click', () => { state.mapDay = addDays(state.mapDay, 1); renderMapDay(); });
-  document.getElementById('day-today').addEventListener('click', () => { state.mapDay = todayISO(); renderMapDay(); });
-  dayInput.addEventListener('change', () => { if (dayInput.value) { state.mapDay = dayInput.value; renderMapDay(); } });
+  document.getElementById('day-prev').addEventListener('click', () => { state.mapDay = addDays(state.mapDay, -1); renderMapDay(); if (!mapCal.hidden) renderMapCalendar(); });
+  document.getElementById('day-next').addEventListener('click', () => { state.mapDay = addDays(state.mapDay, 1); renderMapDay(); if (!mapCal.hidden) renderMapCalendar(); });
+  dayToggle.addEventListener('click', () => toggleMapCal());
+  document.getElementById('mcal-title').addEventListener('click', () => { state.mapDay = todayISO(); toggleMapCal(false); renderMapDay(); });
+  document.getElementById('mcal-prev').addEventListener('click', () => { state.mapMonth = new Date(state.mapMonth.getFullYear(), state.mapMonth.getMonth() - 1, 1); renderMapCalendar(); });
+  document.getElementById('mcal-next').addEventListener('click', () => { state.mapMonth = new Date(state.mapMonth.getFullYear(), state.mapMonth.getMonth() + 1, 1); renderMapCalendar(); });
 
   // ---------- Vue favoris ----------
   function renderFavorites() {
@@ -311,7 +357,7 @@
       t.classList.toggle('is-active', on); t.setAttribute('aria-selected', on);
     });
     document.querySelectorAll('.view').forEach(v => { v.hidden = v.id !== 'view-' + view; v.classList.toggle('is-active', v.id === 'view-' + view); });
-    if (view === 'map') { state.mapDay = state.selected || todayISO(); renderMapDay(); }
+    if (view === 'map') { toggleMapCal(false); renderCatFilter(); renderMapDay(); }
     if (view === 'favorites') renderFavorites();
     try { localStorage.setItem('view', view); } catch { /* ignore */ }
   }
@@ -333,7 +379,7 @@
 
   function rerender() {
     renderCalendar(); renderDayList();
-    if (state.view === 'map') renderMapDay();
+    if (state.view === 'map') { renderCatFilter(); renderMapDay(); if (!mapCal.hidden) renderMapCalendar(); }
     if (state.view === 'favorites') renderFavorites();
   }
 
@@ -378,6 +424,14 @@
     window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
   }
 
+  // ---------- Hauteur de l'en-tête (pour la carte plein écran) ----------
+  function setTopbarHeight() {
+    document.documentElement.style.setProperty('--topbar-h', document.querySelector('.topbar').offsetHeight + 'px');
+    if (state.map && state.view === 'map') state.map.invalidateSize();
+  }
+  window.addEventListener('resize', setTopbarHeight);
+  setTopbarHeight();
+
   // ---------- Init ----------
   try {
     const savedAges = JSON.parse(localStorage.getItem('ages') || 'null');
@@ -385,6 +439,10 @@
       state.ages = new Set(savedAges);
       document.querySelectorAll('#age-chips .chip').forEach(c => c.classList.toggle('is-active', state.ages.has(c.dataset.age)));
     }
+  } catch { /* ignore */ }
+  try {
+    const savedCats = JSON.parse(localStorage.getItem('cats') || 'null');
+    if (Array.isArray(savedCats) && savedCats.length) state.cats = new Set(savedCats);
   } catch { /* ignore */ }
   renderCalendar(); renderDayList();
   loadData();

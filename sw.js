@@ -1,5 +1,5 @@
 /* Service worker : coquille applicative hors ligne, données réseau d'abord. */
-const VERSION = 'v1';
+const VERSION = 'v2';
 const SHELL_CACHE = 'shell-' + VERSION;
 const DATA_CACHE = 'data-' + VERSION;
 const SHELL = [

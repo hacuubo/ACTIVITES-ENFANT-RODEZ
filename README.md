@@ -9,7 +9,7 @@ Les données sont mises à jour **chaque mercredi** par une Routine Claude qui p
 - **📅 Mois** : calendrier avec le nombre d'activités par jour. Toucher un jour liste les activités par ordre chronologique (heure, titre, résumé, ville, tranche d'âge, catégorie).
 - **Fiche détaillée** : toucher une activité ouvre la fiche : description, âge et public, lieu avec lien Google Maps, prix, téléphone de réservation (appel direct), billetterie, site officiel, source vérifiée.
 - **⭐ Favoris** : l'étoile enregistre une sélection sur le téléphone (conservée entre les mises à jour).
-- **🗺️ Jour & carte** : carte de Rodez et alentours avec les activités du jour pointées ; toucher un repère ouvre la fiche. Navigation jour par jour ou choix d'une date.
+- **🗺️ Carte** : carte plein écran de Rodez et alentours avec les activités du jour pointées par couleur ; toucher un repère ouvre la fiche. La barre de date déroule le calendrier du mois, et une colonne à droite filtre par type d'activité.
 - **Filtre par âge** : 1-2, 3-5, 6-10, ados 11-15 (cumulables).
 - **Hors ligne** : l'application et la dernière liste d'activités restent consultables sans réseau (les fonds de carte nécessitent le réseau).
 
