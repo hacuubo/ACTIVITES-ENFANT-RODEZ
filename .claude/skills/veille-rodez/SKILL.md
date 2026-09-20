@@ -16,7 +16,7 @@ Ne jamais inventer un événement. Chaque entrée doit provenir d'une page consu
 3. Lire `docs/SCHEMA.md` (format des données) et le `data/events.json` courant (pour conserver les événements encore valides et leurs `id`, qui servent aux favoris des utilisateurs).
 4. Créer un dossier de travail dans le scratchpad : un fichier JSON par famille de sources.
 
-## 1. Collecte (répartir sur 4 à 6 agents en parallèle)
+## 1. Collecte (répartir sur 5 à 6 agents en parallèle, un par famille A à F)
 
 Pour chaque famille, faire des recherches web (WebSearch, requêtes en français, avec le mois et l'année) puis lire les pages (WebFetch) pour extraire : titre, date(s), horaires, lieu, adresse, tranche d'âge, prix, téléphone, lien de réservation.
 
@@ -43,6 +43,16 @@ Pour chaque famille, faire des recherches web (WebSearch, requêtes en français
 - Stages de vacances (multi-sports, arts, cirque, théâtre, langues) : vérifier le calendrier scolaire zone C.
 - Ados 11-15 : concerts, e-sport, ateliers vidéo/podcast, soirées, sorties organisées par les espaces jeunes / PIJ.
 - Sources : sites des associations, https://www.helloasso.com (événements Rodez), pages publiques Facebook via recherche, Familles Rurales, Francas, Léo Lagrange, UFOLEP/USEP.
+
+### F. Associations et clubs sportifs (balayage systématique)
+Objectif : ne rater aucune occasion sportive ouverte aux enfants **datée** (pas les entraînements hebdomadaires réservés aux licenciés) :
+- Portes ouvertes, journées découverte, séances d'essai gratuites (rentrée septembre, janvier, après chaque vacances), baptêmes (plongée, escalade, poney, kayak, voile, tir à l'arc), initiations.
+- Stages de vacances (multisports, foot, rugby, tennis, judo, gym, danse, natation, escalade, équitation, cirque, échecs) : programmes de Toussaint, Noël, février, Pâques, été.
+- Tournois et compétitions jeunes ouverts au public ou aux non-licenciés, galas de fin d'année, fêtes de club, courses enfants (Rose de Rodez, Monas'trail, trails avec courses kids, Octobre rose), randonnées familles, sorties nature encadrées.
+- Événements jeune public des clubs pros ou semi-pros : Rodez Aveyron Football (animations enfants, stages RAF), Rodez Rugby, Rodez Basket, Rodez Handball, Ruthénois volley, Aquavallon (bébés nageurs, animations vacances, nocturnes), patinoire.
+- Sources : annuaire des associations de la Ville de Rodez (ville-rodez.fr, rubrique sport / vie associative), Office municipal des sports de Rodez, Rodez Agglomération (équipements : Aquavallon, gymnases, stade), annuaires des communes voisines (Onet-le-Château, Luc-la-Primaube, Sébazac, Olemps, Le Monastère, Baraqueville, Bozouls, Marcillac), comités départementaux de l'Aveyron (CDOS 12, district de football Aveyron, comité rugby Aveyron, judo, gym, tennis, natation, escalade, équitation/CDE 12, cyclisme, athlétisme, handball, basket), UFOLEP/USEP Aveyron, Familles Rurales, MJC (sections sportives), sites et pages Facebook publiques des clubs (via WebSearch), HelloAsso (inscriptions stages), Sport Adapté / handisport Aveyron.
+- Requêtes : `club <sport> Rodez portes ouvertes <année>`, `stage <sport> vacances <Toussaint|Noël|février|Pâques|été> Rodez enfants`, `séance d'essai <sport> enfants Rodez`, `tournoi jeunes <sport> Aveyron <mois> <année>`, `baptême poney Rodez`, `course enfants Rodez <année>`, `Aquavallon animations vacances`, `Rodez Aveyron Football stage enfants`.
+- Catégorie `sport`, `audience` = `enfant` pour un stage déposé, `famille` pour une course ou une journée découverte parents-enfants, `ados` si 11-15 uniquement.
 
 ### E. Agrégateurs et presse (pour ne rien rater)
 - https://12.agendaculturel.fr/jeune-public/ , https://oazis.app/sorties/rodez/enfants , Unidivers Rodez, Kidiklik / Citizenkid Aveyron, https://www.ladepeche.fr (Rodez sorties), https://www.centrepresseaveyron.fr (agenda), Sortir en Aveyron, Bougeenfamille, Le Petit Moutard.
