@@ -49,7 +49,7 @@ La Routine (Claude Code, chaque mercredi matin) suit `.claude/skills/veille-rode
 3. fusion, dédoublonnage, validation (`scripts/validate.py`) ;
 4. commit + push de `data/events.json` → redéploiement automatique.
 
-Pour lancer une mise à jour à la main : ouvrir une session Claude Code sur ce dépôt et demander « suis la procédure veille-rodez ».
+Pour lancer une mise à jour à la main : ouvrir une session Claude Code sur ce dépôt et demander « suis la procédure veille-rodez ». Configuration de la Routine : voir `docs/ROUTINE.md`.
 
 ## Licence des données
 
