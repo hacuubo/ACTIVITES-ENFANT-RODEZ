@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-09-20T15:38:09+00:00",
+  "updated_at": "2026-09-20T18:40:19+00:00",
   "period": {
     "from": "2026-09-19",
     "to": "2027-01-10"
@@ -684,6 +684,45 @@
       ]
     },
     {
+      "end_date": null,
+      "time": "15:30",
+      "end_time": "16:30",
+      "days_of_week": null,
+      "phone": "05 65 73 36 16",
+      "email": "jeunesse@maisondulivre.com",
+      "booking_url": null,
+      "tags": [
+        "kefesh",
+        "a-confirmer",
+        "livres",
+        "gratuit",
+        "gouter",
+        "pluie-ok"
+      ],
+      "secondary_sources": [
+        "https://www.kefesh.fr/pour-les-enfants/i/97957921/copie-de-petit-dejeuner-litteraire-la-maison-du-livre"
+      ],
+      "source_checked": "2026-09-20",
+      "id": "lancement-prix-des-ados_2026-09-23_rodez",
+      "title": "Lancement du Prix des Ados 2027",
+      "summary": "La librairie Maison du Livre présente son prix littéraire ados 2027 et sa sélection, autour d'un goûter.",
+      "description": "Rencontre à la librairie pour découvrir le fonctionnement du Prix des Ados de la Maison du Livre et les romans en lice pour l'édition 2027, suivie d'un goûter. Les jeunes lecteurs peuvent ensuite rejoindre le jury en lisant la sélection au fil de l'année. Renseignements auprès du rayon jeunesse de la librairie. Page officielle inaccessible lors de la vérification (403) : informations issues de la fiche Kefesh, à confirmer auprès de la librairie.",
+      "category": "lecture",
+      "date": "2026-09-23",
+      "age_min": 11,
+      "age_max": 15,
+      "audience": "ados",
+      "city": "Rodez",
+      "venue": "La Maison du Livre",
+      "address": "Passage des Maçons, 12000 Rodez",
+      "lat": 44.34988,
+      "lng": 2.574285,
+      "price": "Gratuit",
+      "booking_required": false,
+      "url": "https://www.maisondulivre.com/agenda-203271/lancement-du-prix-des-ados-2026-2027/",
+      "source": "https://www.kefesh.fr/pour-les-enfants/i/97957921/copie-de-petit-dejeuner-litteraire-la-maison-du-livre"
+    },
+    {
       "id": "activites-parents-enfants-eveil-aux-sens_2026-09-25_rodez",
       "title": "Parents-enfants : éveil aux sens (0-5 ans)",
       "summary": "Matinée d'éveil sensoriel à partager entre parents et tout-petits au Centre social de Rodez. Gratuit.",
@@ -854,6 +893,48 @@
       ]
     },
     {
+      "end_date": "2026-09-27",
+      "time": "14:00",
+      "end_time": "17:00",
+      "days_of_week": null,
+      "phone": null,
+      "email": null,
+      "booking_url": "https://billetterie.festik.net/arret-danse",
+      "tags": [
+        "kefesh",
+        "a-confirmer",
+        "danse",
+        "handicap",
+        "inclusif",
+        "festival",
+        "pluie-ok"
+      ],
+      "secondary_sources": [
+        "https://www.kefesh.fr/lagenda/i/97969804/stage-de-danse-inclusive-osmose",
+        "https://www.kefesh.fr/lagenda/i/97969827/copie-de-stage-de-danse-inclusive-osmose",
+        "https://www.lepetitjournal.net/12-aveyron/2026/09/01/quatrieme-edition-du-festival-arret-danse-2/"
+      ],
+      "source_checked": "2026-09-20",
+      "id": "stage-danse-inclusive-osmose_2026-09-26_onet-le-chateau",
+      "title": "Stage de danse inclusive (festival Arrêt Danse)",
+      "summary": "Initiation de danse inclusive pour les 7-14 ans avec la Cie DK-BEL, à l'école Osmose, sur deux jours.",
+      "description": "Clôture du festival Arrêt Danse #4 : la compagnie DK-BEL, qui réunit danseurs valides et en situation de handicap, anime deux jours de pratique à l'école de danse Osmose. Initiation 7-14 ans : samedi 14h-15h et dimanche 10h-11h (10 € les deux jours). Stage à partir de 14 ans et adultes : samedi 15h-17h et dimanche 11h15-13h15 (15 € les deux jours). Gratuit pour les personnes en situation de handicap. Inscription sur la billetterie en ligne du festival.",
+      "category": "stage",
+      "date": "2026-09-26",
+      "age_min": 7,
+      "age_max": 15,
+      "audience": "enfant",
+      "city": "Onet-le-Château",
+      "venue": "École de danse Osmose",
+      "address": "16 route de Sévérac, 12850 Onet-le-Château",
+      "lat": 44.3624777,
+      "lng": 2.588766,
+      "price": "10 € (initiation 7-14 ans, 2 jours) ; 15 € (stage 14 ans et +) ; gratuit personnes en situation de handicap",
+      "booking_required": true,
+      "url": "https://billetterie.festik.net/arret-danse",
+      "source": "https://www.12actu.com/2026/08/20/arret-danse-4-la-danse-investit-rodez-et-ses-environs"
+    },
+    {
       "description": "Compétition équestre organisée au Domaine de Combelles (centre équestre de Rodez Agglomération), au calendrier 2026 publié par l'Office de tourisme. Épreuves club, amateur et poney selon les dates ; horaires de la journée et conditions d'accès des spectateurs non communiqués : se renseigner auprès du centre équestre (05 65 77 30 00).",
       "end_date": null,
       "time": null,
@@ -955,6 +1036,44 @@
       "booking_required": false,
       "url": "https://www.le-sportif.com/calendrier/221096/trail-les-plancatges-2026-ceignac/trail-course-nature/",
       "source": "https://www.le-sportif.com/calendrier/221096/trail-les-plancatges-2026-ceignac/trail-course-nature/"
+    },
+    {
+      "end_date": null,
+      "time": "15:00",
+      "end_time": "16:30",
+      "days_of_week": null,
+      "phone": null,
+      "email": "marionartphotos@gmail.com",
+      "booking_url": "https://www.jaifaimjemange.fr/component/eventbooking/je-creer-un-evenement-jfjm-2026/jfjm-rodez-2026",
+      "tags": [
+        "kefesh",
+        "gratuit",
+        "exterieur",
+        "bebes",
+        "photo"
+      ],
+      "secondary_sources": [
+        "https://www.kefesh.fr/lagenda/i/97892528/j-ai-faim-je-mange-jardin-du-foirail-rodez"
+      ],
+      "source_checked": "2026-09-20",
+      "id": "j-ai-faim-je-mange-photo-familles_2026-09-27_rodez",
+      "title": "J'ai faim, je mange : rencontre-photo des familles",
+      "summary": "Rencontre conviviale et séance photo gratuite pour les familles avec bébés et jeunes enfants au kiosque du Foirail.",
+      "description": "Les familles se retrouvent au kiosque du jardin public pour un moment d'échange autour de l'alimentation des tout-petits (sein, biberon, compote, goûter...), fabriquent des pancartes puis participent à des photos collectives et individuelles réalisées par une photographe. Accueil à 15h, photos à partir de 15h30, fin vers 16h30. Apporter le repas ou goûter de l'enfant et un lange pour la photo de groupe. Accessible en poussette. Inscription gratuite de la famille via le formulaire en ligne.",
+      "category": "autre",
+      "date": "2026-09-27",
+      "age_min": 1,
+      "age_max": 6,
+      "audience": "famille",
+      "city": "Rodez",
+      "venue": "Kiosque du Jardin du Foirail",
+      "address": "Jardin du Foirail, avenue Victor Hugo, 12000 Rodez",
+      "lat": 44.3511729,
+      "lng": 2.5699623,
+      "price": "Gratuit",
+      "booking_required": true,
+      "url": "https://www.jaifaimjemange.fr/component/eventbooking/je-creer-un-evenement-jfjm-2026/jfjm-rodez-2026",
+      "source": "https://www.jaifaimjemange.fr/component/eventbooking/je-creer-un-evenement-jfjm-2026/jfjm-rodez-2026"
     },
     {
       "id": "keskili-le-tout-petit-et-onlikoinou_2026-09-29_luc-la-primaube",
@@ -1669,6 +1788,45 @@
       ]
     },
     {
+      "end_date": null,
+      "time": "18:30",
+      "end_time": "20:30",
+      "days_of_week": null,
+      "phone": "06 33 75 62 82",
+      "email": "lm.calligraphie12@gmail.com",
+      "booking_url": null,
+      "tags": [
+        "kefesh",
+        "a-confirmer",
+        "calligraphie",
+        "creatif",
+        "pluie-ok"
+      ],
+      "secondary_sources": [
+        "https://www.kefesh.fr/lagenda/i/97763049/copie-de-atelier-calligraphie-avec-lm-calligraphie-chez-cecile-aime",
+        "https://www.lepetitjournal.net/12-aveyron/2026/02/10/la-calligraphie-sinvite-a-la-menuiserie/"
+      ],
+      "source_checked": "2026-09-20",
+      "id": "atelier-calligraphie-lm_2026-10-15_rodez",
+      "title": "Atelier calligraphie LM Calligraphie",
+      "summary": "Atelier mensuel de calligraphie latine ouvert dès 7 ans, matériel fourni, chez Cécile & Aimé.",
+      "description": "Leïla Mordi (LM Calligraphie) initie petits et grands à la calligraphie latine lors d'un atelier de deux heures ; papier, plumes et encre sont fournis. Places limitées : inscription par téléphone, e-mail ou formulaire en ligne. Site de l'organisatrice inaccessible lors de la vérification (403) : date et horaire issus de la fiche Kefesh, à confirmer auprès de LM Calligraphie.",
+      "category": "atelier",
+      "date": "2026-10-15",
+      "age_min": 7,
+      "age_max": 15,
+      "audience": "famille",
+      "city": "Rodez",
+      "venue": "Chez Cécile & Aimé",
+      "address": "2 boulevard Flaugergues, 12000 Rodez",
+      "lat": 44.3483227,
+      "lng": 2.577385,
+      "price": "20 € / enfant, 25 € / adulte (matériel fourni)",
+      "booking_required": true,
+      "url": "https://www.lm-calligraphie.com/cours-et-atelier/",
+      "source": "https://www.kefesh.fr/lagenda/i/97763049/copie-de-atelier-calligraphie-avec-lm-calligraphie-chez-cecile-aime"
+    },
+    {
       "id": "semaine-de-l-epee-escrime_2026-10-17_rodez",
       "title": "Semaine de l'Épée : compétition nationale d'escrime",
       "summary": "Trois jours d'épée (seniors, M20, M17) à regarder en famille à l'Amphithéâtre, entrée libre, finales dès 15h.",
@@ -1868,8 +2026,8 @@
       "email": null,
       "url": "https://rodezaveyronfootball.com/",
       "booking_url": "https://billetterie.rodezaveyronfootball.com/fr",
-      "source": "https://www.fotmob.com/matches/rodez-vs-montpellier/1pgwnd",
-      "source_checked": "2026-09-19",
+      "source": "https://www.fotmob.com/fr/matches/rodez-vs-montpellier/1pgwnd",
+      "source_checked": "2026-09-20",
       "tags": [
         "football",
         "stade",
@@ -2086,12 +2244,12 @@
     {
       "id": "match-raf-dunkerque-ligue-2_2026-10-30_rodez",
       "title": "Match RAF - Dunkerque (Ligue 2)",
-      "summary": "Rodez reçoit l'USL Dunkerque à Paul-Lignon pendant les vacances de la Toussaint (horaire à confirmer).",
-      "description": "Match de Ligue 2 BKT à domicile. L'heure du coup d'envoi sera fixée par la LFP : vérifier sur le site du club avant de venir.",
+      "summary": "Rodez reçoit l'USL Dunkerque à Paul-Lignon pendant les vacances de la Toussaint, vendredi soir à 20h.",
+      "description": "11e journée de Ligue 2 BKT à domicile, coup d'envoi vendredi à 20h (fotmob : 19:00 UTC ; beIN Sports : 19:00). Billets sur la billetterie officielle du club.",
       "category": "sport",
       "date": "2026-10-30",
       "end_date": null,
-      "time": null,
+      "time": "20:00",
       "end_time": null,
       "days_of_week": null,
       "age_min": 5,
@@ -2108,8 +2266,8 @@
       "email": null,
       "url": "https://rodezaveyronfootball.com/",
       "booking_url": "https://billetterie.rodezaveyronfootball.com/fr",
-      "source": "https://www.footmercato.net/club/rodez-aveyron-football/calendrier",
-      "source_checked": "2026-09-19",
+      "source": "https://www.fotmob.com/fr/matches/rodez-vs-dunkerque/lsi30j",
+      "source_checked": "2026-09-20",
       "tags": [
         "football",
         "stade",
@@ -2286,6 +2444,45 @@
         "gratuit",
         "contes"
       ]
+    },
+    {
+      "end_date": null,
+      "time": "18:30",
+      "end_time": "20:30",
+      "days_of_week": null,
+      "phone": "06 33 75 62 82",
+      "email": "lm.calligraphie12@gmail.com",
+      "booking_url": null,
+      "tags": [
+        "kefesh",
+        "a-confirmer",
+        "calligraphie",
+        "creatif",
+        "pluie-ok"
+      ],
+      "secondary_sources": [
+        "https://www.kefesh.fr/lagenda/i/97763051/copie-de-atelier-calligraphie-avec-lm-calligraphie-chez-cecile-aime",
+        "https://www.lepetitjournal.net/12-aveyron/2026/02/10/la-calligraphie-sinvite-a-la-menuiserie/"
+      ],
+      "source_checked": "2026-09-20",
+      "id": "atelier-calligraphie-lm_2026-11-05_rodez",
+      "title": "Atelier calligraphie LM Calligraphie",
+      "summary": "Atelier mensuel de calligraphie latine ouvert dès 7 ans, matériel fourni, chez Cécile & Aimé.",
+      "description": "Leïla Mordi (LM Calligraphie) initie petits et grands à la calligraphie latine lors d'un atelier de deux heures ; papier, plumes et encre sont fournis. Places limitées : inscription par téléphone, e-mail ou formulaire en ligne. Site de l'organisatrice inaccessible lors de la vérification (403) : date et horaire issus de la fiche Kefesh, à confirmer auprès de LM Calligraphie.",
+      "category": "atelier",
+      "date": "2026-11-05",
+      "age_min": 7,
+      "age_max": 15,
+      "audience": "famille",
+      "city": "Rodez",
+      "venue": "Chez Cécile & Aimé",
+      "address": "2 boulevard Flaugergues, 12000 Rodez",
+      "lat": 44.3483227,
+      "lng": 2.577385,
+      "price": "20 € / enfant, 25 € / adulte (matériel fourni)",
+      "booking_required": true,
+      "url": "https://www.lm-calligraphie.com/cours-et-atelier/",
+      "source": "https://www.kefesh.fr/lagenda/i/97763051/copie-de-atelier-calligraphie-avec-lm-calligraphie-chez-cecile-aime"
     },
     {
       "id": "atelier-yoga-en-famille_2026-11-07_laissac-severac-l-eglise",
@@ -2689,8 +2886,8 @@
       "email": null,
       "url": "https://rodezaveyronfootball.com/",
       "booking_url": "https://billetterie.rodezaveyronfootball.com/fr",
-      "source": "https://www.footmercato.net/club/rodez-aveyron-football/calendrier",
-      "source_checked": "2026-09-19",
+      "source": "https://www.fotmob.com/fr/matches/rodez-vs-reims/1lzygs",
+      "source_checked": "2026-09-20",
       "tags": [
         "football",
         "stade"
@@ -3070,6 +3267,45 @@
       ]
     },
     {
+      "end_date": null,
+      "time": "18:30",
+      "end_time": "20:30",
+      "days_of_week": null,
+      "phone": "06 33 75 62 82",
+      "email": "lm.calligraphie12@gmail.com",
+      "booking_url": null,
+      "tags": [
+        "kefesh",
+        "a-confirmer",
+        "calligraphie",
+        "creatif",
+        "pluie-ok"
+      ],
+      "secondary_sources": [
+        "https://www.kefesh.fr/lagenda/i/97763052/copie-de-atelier-calligraphie-avec-lm-calligraphie-chez-cecile-aime",
+        "https://www.lepetitjournal.net/12-aveyron/2026/02/10/la-calligraphie-sinvite-a-la-menuiserie/"
+      ],
+      "source_checked": "2026-09-20",
+      "id": "atelier-calligraphie-lm_2026-12-10_rodez",
+      "title": "Atelier calligraphie LM Calligraphie",
+      "summary": "Atelier mensuel de calligraphie latine ouvert dès 7 ans, matériel fourni, chez Cécile & Aimé.",
+      "description": "Leïla Mordi (LM Calligraphie) initie petits et grands à la calligraphie latine lors d'un atelier de deux heures ; papier, plumes et encre sont fournis. Places limitées : inscription par téléphone, e-mail ou formulaire en ligne. Site de l'organisatrice inaccessible lors de la vérification (403) : date et horaire issus de la fiche Kefesh, à confirmer auprès de LM Calligraphie.",
+      "category": "atelier",
+      "date": "2026-12-10",
+      "age_min": 7,
+      "age_max": 15,
+      "audience": "famille",
+      "city": "Rodez",
+      "venue": "Chez Cécile & Aimé",
+      "address": "2 boulevard Flaugergues, 12000 Rodez",
+      "lat": 44.3483227,
+      "lng": 2.577385,
+      "price": "20 € / enfant, 25 € / adulte (matériel fourni)",
+      "booking_required": true,
+      "url": "https://www.lm-calligraphie.com/cours-et-atelier/",
+      "source": "https://www.kefesh.fr/lagenda/i/97763052/copie-de-atelier-calligraphie-avec-lm-calligraphie-chez-cecile-aime"
+    },
+    {
       "id": "marche-de-noel-d-olemps_2026-12-13_olemps",
       "title": "Marché de Noël d'Olemps",
       "summary": "Une cinquantaine de commerçants, artisans, associations et artistes pour partager la magie de Noël à Olemps.",
@@ -3264,8 +3500,8 @@
       "email": null,
       "url": "https://rodezaveyronfootball.com/",
       "booking_url": "https://billetterie.rodezaveyronfootball.com/fr",
-      "source": "https://www.footmercato.net/club/rodez-aveyron-football/calendrier",
-      "source_checked": "2026-09-19",
+      "source": "https://www.fotmob.com/fr/teams/4120/fixtures/rodez",
+      "source_checked": "2026-09-20",
       "tags": [
         "football",
         "stade",
