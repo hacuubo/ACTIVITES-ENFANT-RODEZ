@@ -27,14 +27,20 @@ def same_event(a, b):
     if a['date'] != b['date']: return False
     ta, tb = norm(a['title']), norm(b['title'])
     if ta == tb: return True
-    same_place = norm(a.get('venue'))[:15] == norm(b.get('venue'))[:15] or (
-        norm(a['city']) == norm(b['city']) and (a.get('time') or '') == (b.get('time') or '') and a.get('time'))
+    same_time = (a.get('time') or '') == (b.get('time') or '')
+    if same_time and min(len(ta), len(tb)) >= 6 and (ta in tb or tb in ta): return True
+    try:
+        near = abs(float(a['lat']) - float(b['lat'])) < 0.0012 and abs(float(a['lng']) - float(b['lng'])) < 0.0016  # ≈ 130 m
+    except (KeyError, TypeError, ValueError):
+        near = False
+    same_place = near or norm(a.get('venue'))[:12] == norm(b.get('venue'))[:12] or (
+        norm(a['city']) == norm(b['city']) and same_time and a.get('time'))
     if not same_place: return False
     ratio = difflib.SequenceMatcher(None, ta, tb).ratio()
     if ratio >= 0.6: return True
-    # même créneau, même lieu exact, même tranche d'âge : très probablement identique
-    return (norm(a.get('venue')) == norm(b.get('venue')) and (a.get('time') or '') == (b.get('time') or '')
-            and a.get('age_min') == b.get('age_min') and a.get('age_max') == b.get('age_max') and ratio >= 0.4)
+    # même créneau horaire, même lieu, même tranche d'âge : très probablement identique
+    return (same_time and a.get('time') and (near or norm(a.get('venue'))[:12] == norm(b.get('venue'))[:12])
+            and a.get('age_min') == b.get('age_min') and a.get('age_max') == b.get('age_max') and ratio >= 0.25)
 
 def completeness(e):
     return sum(1 for v in e.values() if v not in (None, '', []))
