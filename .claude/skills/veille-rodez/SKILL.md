@@ -106,4 +106,43 @@ Donner en 10 lignes maximum : nombre total d'événements, nouveaux, supprimés,
 - **Sport (collecte du 20/09/2026)** : calendriers de courses fiables pour les épreuves enfants : le-sportif.com, running.life, gotrail.run, jogging-international.net ; matchs de rugby : rodez-rugby.com + rugbyamateur.fr ; judo : calendrier judo-jra.ffjudo.com ; poney : poneyvillage.com ; concours équestres Combelles : rodez-tourisme.fr. Bloqués : HelloAsso (403), kikourou.net (403), rodez.asptt.com (403), Facebook (connexion). Les stages vacances du RAF, du Stade Rodez Athlétisme, de la MJC et du P'tit Club sont publiés 3 à 4 semaines avant chaque période : les rechercher à chaque veille. Les animations vacances d'Aquavallon ne sont annoncées que sur les réseaux sociaux : chercher aussi la presse (Centre Presse, La Dépêche) qui les relaie.
 - **Croisement Kefesh (20/09/2026)** : l'API GoodBarber du site répond bien (parfois une connexion réinitialisée : le script réessaie). Sources d'organisateurs bloquées : maisondulivre.com (403), lm-calligraphie.com (403), billetterie.festik.net (JS uniquement) → passer par la presse (12actu.com, lepetitjournal.net) pour confirmer, sinon fiche Kefesh + tag `a-confirmer`. Calendrier du RAF : le site officiel est un widget illisible ; utiliser fotmob.com (heures en UTC, +2 h l'été / +1 h l'hiver) recoupé avec beinsports.com ; une heure « 00:00 » chez beIN signifie « à définir » → laisser `time` à null.
 - **Croisement Kefesh (2e passage, 20/09/2026)** : sur 43 événements Kefesh absents, la quasi-totalité étaient adultes (conférences, soirées bar au Krill, dédicaces littéraires, comedy/impro) → aucun ajouté. Un écart de date signalé par Kefesh pour le match RAF-Montpellier (16/10 chez Kefesh vs 19/10 chez nous) s'est révélé être une erreur de Kefesh (slug d'URL beIN trompeur) : la date 19/10 était correcte, confirmée par fotmob.com et footmercato.net. Ne pas corriger aveuglément sur un simple écart Kefesh : toujours recouper avec au moins deux sources sportives avant de changer une date. **la-baleine.eu** publie parfois un PDF de programmation resté sur l'ancienne saison : vérifier la saison affichée avant d'utiliser une info. **ffhandball.fr / rochandball.com** : calendrier en image/JS illisible par WebFetch, passer par de.rodez-tourisme.fr (Terminkalender) ou rodez-tourisme.fr/agenda pour les dates de matchs (l'heure précise y manque souvent). **eterritoire.fr** : 403. **tourisme-aveyron.com** : certaines fiches d'événements renvoient 410 Gone (contenu expiré) même si trouvées par recherche — ne pas les utiliser comme source si la page ne charge plus.
-- **À rechercher explicitement à la prochaine veille** : "Chat fait boum !" (spectacle jeune public 0-12 ans au Krill, Onet-le-Château, repéré pour le 13/01/2027 — hors fenêtre du 20/09 mais entrera dans la période dès que la fenêtre de 16 semaines avancera) ; programmes Halloween au Haras de Rodez, marché de Noël place Foch / patinoire / village du Père Noël à Rodez, patinoire d'Onet, Téléthon local, stages Toussaint du RAF/MJC/Le P'tit Club/Stade Rodez Athlétisme (toujours annoncés "bientôt disponible" au 20/09/2026).
+- **Pagination des agendas Diffusio : résolue (veille du 23/09/2026)**. Contrairement à ce qui était noté plus haut, la
+  pagination n'est pas morte : ajouter `?id1[currentPage]=N` à l'URL de la liste (ville-rodez.fr, rodezagglo.fr,
+  pontdesalars.fr, olemps.fr, lemonastere.fr, moyrazes.fr) et `?ReactWay[currentPage]=N` sur tourisme-aveyron.com.
+  On récupère ainsi la totalité des fiches (224 sur ville-rodez.fr, 316 sur rodezagglo.fr) au lieu des 15 premières.
+  **C'est la méthode à utiliser en priorité pour les familles A, B et C.**
+- **terramemoria.fr** : le domaine n'appartient plus au musée de Bozouls, il redirige vers un comparateur de casinos
+  en ligne. Ne plus l'utiliser : passer par tourisme-aveyron.com ou l'office de tourisme Terres d'Aveyron.
+- **maisondulivre.com** : Cloudflare (403) en WebFetch comme en curl avec un user-agent de navigateur ; le miroir
+  `placedeslibraires.fr` est également en 403. Les animations jeunesse de la librairie ne sont donc vérifiables que
+  par la fiche Kefesh → `source` = fiche Kefesh + tag `a-confirmer`, téléphone 05 65 73 36 14 pour confirmation.
+- **Rugby (veille du 23/09/2026)** : `rugbyamateur.fr/club/rodez-rugby/calendrier/` donne le calendrier complet de la
+  saison avec les horaires (Fédérale 2 : coup d'envoi à 15 h 15) — source la plus fiable, le site du club n'a pas de
+  page `/calendrier`. Attention, la page mêle deux lignes le 18/10 (« Rodez - Albi 15 h 00 » et
+  « Rodez - Decazeville 15 h 15 ») : l'agenda officiel de la Ville et l'office de tourisme ne connaissent que
+  Rodez - Decazeville, retenu seul. À retrancher si un match Albi se confirme.
+- **Handball ROC (veille du 23/09/2026)** : `rochandball.com/calendrier/` publie ses calendriers en **images**.
+  Utiliser les fiches individuelles `de.rodez-tourisme.fr/terminkalender/<id>-match-n1m-roc-handball---<adversaire>`
+  (trouvées par `site:rodez-tourisme.fr Match Roc Handball`) et `unidivers.fr` : les dates y sont fiables, mais
+  **l'heure manque toujours** ; la fiche Kefesh donne 19 h pour les matchs N1M.
+- **Piège de `scripts/merge.py`** : deux rencontres différentes le même jour dans la même salle sont fusionnées
+  (le 26/09/2026, le N1M contre Libourne a écrasé le N3F contre Tournefeuille en gardant l'ancien `id`).
+  **Après chaque fusion, comparer les titres des `id` conservés avec la version précédente** et rétablir à la main
+  les événements écrasés.
+- **Croisement Kefesh (23/09/2026)** : 81 événements à venir, 17 déjà présents, 64 manquants dont la très grande
+  majorité d'adultes (conférences, concerts de bar, dédicaces, comedy). Retenus : les 4 matchs N1M du ROC,
+  « Chat fait boum ! » (13/01/2027, Krill), l'après-midi T'Choupi et la soirée manga de la Maison du Livre.
+  Kefesh redonne **encore** une date fausse pour RAF - Montpellier (16/10 au lieu du 19/10, confirmé par fotmob) :
+  ne jamais corriger une date de match sur la seule foi de Kefesh.
+- **Nouvelles sources bloquées (23/09/2026)** : staderodez.athle.fr et cda12.athle.fr (503), poneyvillage.ffe.com (503),
+  lepetitmoutard.fr (403), conques-marcillac.c3rb.org (403), mediatheque.aveyron.fr (403),
+  mediatheque-onet-le-chateau.fr (403), mediatheque.bozouls.fr (503), france-voyage.com (403),
+  placedeslibraires.fr (403), mjcllp.fr (rendu 100 % JS, sous-pages en 404 : passer par les fiches de l'office de
+  tourisme). Sites de mairie injoignables : marcillac-vallon.fr, laissac-severac-leglise.fr, salles-la-source.fr,
+  flavin.fr, calmont12.fr, clairvaux-aveyron.fr, sebazac-concoures.fr, druelle-balsac.fr ; bozouls.fr/agenda est en
+  404, la bonne URL est `bozouls.fr/fr/actualites/agenda`.
+- **Budget de recherche** : chaque agent épuise ses 200 WebSearch avant la fin. Privilégier WebFetch sur les agendas
+  paginés (voir la première puce) et réserver WebSearch aux pistes précises.
+- **Orthographe des communes** : écrire `Laissac-Séverac-l'Église` (forme retenue dans les données), pas
+  « Laissac-Sévérac l'Église » — sinon l'application affiche deux communes distinctes.
+- **À rechercher explicitement à la prochaine veille** : (« Chat fait boum ! » a été ajouté le 23/09/2026) programmes Halloween au Haras de Rodez, marché de Noël place Foch / patinoire / village du Père Noël à Rodez, patinoire d'Onet, Téléthon local, stages Toussaint du RAF/MJC/Le P'tit Club/Stade Rodez Athlétisme (le programme de la Toussaint de la MJC de Rodez a été publié le 21/09/2026 : 32 stages intégrés ; celui de Noël paraîtra vers fin novembre, celui de la MJC d'Onet après le 25/09). Ajouter aussi : ateliers « Mes vacances au musée » de Noël (Soulages, Fenaille, Denys-Puech), avant-premières du CGR (publiées à 2 semaines), animations de Noël des musées et de la médiathèque du 23/12 au 04/01.
