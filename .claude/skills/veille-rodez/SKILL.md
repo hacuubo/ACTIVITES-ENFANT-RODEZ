@@ -145,4 +145,74 @@ Donner en 10 lignes maximum : nombre total d'événements, nouveaux, supprimés,
   paginés (voir la première puce) et réserver WebSearch aux pistes précises.
 - **Orthographe des communes** : écrire `Laissac-Séverac-l'Église` (forme retenue dans les données), pas
   « Laissac-Sévérac l'Église » — sinon l'application affiche deux communes distinctes.
-- **À rechercher explicitement à la prochaine veille** : (« Chat fait boum ! » a été ajouté le 23/09/2026) programmes Halloween au Haras de Rodez, marché de Noël place Foch / patinoire / village du Père Noël à Rodez, patinoire d'Onet, Téléthon local, stages Toussaint du RAF/MJC/Le P'tit Club/Stade Rodez Athlétisme (le programme de la Toussaint de la MJC de Rodez a été publié le 21/09/2026 : 32 stages intégrés ; celui de Noël paraîtra vers fin novembre, celui de la MJC d'Onet après le 25/09). Ajouter aussi : ateliers « Mes vacances au musée » de Noël (Soulages, Fenaille, Denys-Puech), avant-premières du CGR (publiées à 2 semaines), animations de Noël des musées et de la médiathèque du 23/12 au 04/01.
+- **Programmes publiés en image : lisibles (veille du 30/09/2026)**. Ce qui bloquait jusqu'ici (« calendrier en
+  images », « flyer en JPG ») se règle en téléchargeant le visuel puis en l'ouvrant avec l'outil Read, qui affiche
+  l'image : `curl -sS -o /tmp/prog.jpg -A "Mozilla/5.0" <url>` puis Read sur `/tmp/prog.jpg`. C'est ainsi que le
+  programme Toussaint 12-17 ans de la Ville de Rodez (`ville-rodez.fr/uploads/2026/09/2026_VACtoussaintS2-Web.jpg`)
+  a été dépouillé jour par jour. **À appliquer aussi aux calendriers du ROC Handball.** Aucun OCR n'est installé
+  (pytesseract absent) et il n'en faut pas.
+- **Pagination : corrections importantes (30/09/2026)**. `rodez-tourisme.fr` **n'accepte pas** `?id1[currentPage]=N` :
+  la vraie liste est `/agenda/les-sorties-a-rodez/?listpage=N` (22 pages, 256 fiches). `ville-rodez.fr/agenda`
+  exige le **slash final** avant la query. `rodezagglo.fr/agenda/` redirige (301) vers
+  `/informations-pratiques/agenda-des-manifestations/?id1[currentPage]=N` (317 fiches) : c'est la **seule** source
+  paginée couvrant Onet, Luc-la-Primaube, Olemps, Sainte-Radegonde, Druelle-Balsac, Le Monastère et Sébazac.
+  `tourisme-aveyron.com` : `/fr/evenements/agenda-aveyron?ReactWay[d]=~AAAA-MM-JJ~AAAA-MM-JJ&ReactWay[currentPage]=N`.
+  `bozouls.fr` sert ses fiches sur `/fr/diffusio/bozouls/<slug>_TFO…`, pas sur `/fiche/agenda/`.
+- **`onet-le-chateau.fr/evenements/page/N/`** (WebFetch uniquement) : 104 fiches sur 9 pages, dont tout le programme
+  du Patio Centre Social — **la source la plus riche pour Onet-le-Château**, absente des agendas Diffusio. Elle a
+  fourni à elle seule une trentaine d'activités le 30/09/2026.
+- **`pontdesalars.fr/agenda` et `moyrazes.fr/agenda`** listent les fiches des communes voisines **avec leur distance**
+  et affichent les **coordonnées GPS** de chaque lieu : géocodage gratuit, sans passer par Nominatim. Très utile pour
+  le Lévezou et le Ségala.
+- **`ville-rodez.fr/fiche/agenda/<slug>_TFO…` répond 200** là où `rodez-tourisme.fr/fiche/agenda/<même slug>` renvoie
+  404 ou 503 : en cas d'échec sur un slug Tourinsoft, réessayer sur le domaine de la Ville (ou tourisme-occitanie.com).
+- **`fest.fr`** : agenda par ville avec rayon de 10 km (`/agenda/aveyron/rodez`), pagination `?start=N`, filtres par
+  catégorie, fiches avec adresse et coordonnées. Accessible en WebFetch seulement (curl refusé).
+- **`centrepresseaveyron.fr` et `ladepeche.fr`** sont refusés par WebFetch mais **répondent en curl**
+  (`centrepresseaveyron.fr/recherche?q=…`, sans slash final).
+- **PDF** : `pypdf` est cassé dans l'environnement (`_cffi_backend` manquant). Utiliser **`pdfminer.six`**
+  (`pip install pdfminer.six`, puis `extract_text`). WebFetch refuse les PDF de plus de 10 Mo : chercher la version
+  basse définition.
+- **Rugby, ambiguïté du 18/10 résolue (30/09/2026)** : ce n'était **pas** un doublon comme supposé le 23/09, mais deux
+  rencontres réelles le même jour au stade Paul-Lignon — Fédérale 2 masculine Rodez - Decazeville à 15 h 15 et
+  Fédérale 2 féminine Rodez - SC Albi à 15 h 00. Les deux sont désormais en base.
+- **Erreurs de saisie des agendas municipaux sur le rugby (30/09/2026)** : sur ville-rodez.fr et rodezagglo.fr, la
+  fiche « Rodez - Stade Belvesois » est datée du 13/12 mais son texte annonce le 10 janvier, et la fiche
+  « Rodez - Levezou Segala XV » (17/01) contient le texte du match Belvesois. **Faire foi à
+  `rugbyamateur.fr/club/rodez-rugby/calendrier/`**, pas aux fiches Diffusio, pour les dates de rugby.
+- **Horaires des matchs de Ligue 2** : ne pas mettre `time` à null trop vite. Le 30/09/2026, un calendrier affichait
+  « à définir » pour RAF - Reims (04/12) alors que footmercato.net **et** fotmob donnaient tous deux 20 h 00.
+  Recouper au moins deux sources avant d'effacer un horaire déjà en base. Rappel du fuseau : fotmob affiche l'**UTC**
+  (+2 h jusqu'au 25/10, +1 h ensuite).
+- **Kefesh se trompe pour la 3e semaine consécutive** sur RAF - Montpellier (16/10 au lieu du 19/10, confirmé par
+  fotmob et footmercato). Ce n'est plus un accident : **ignorer par principe les dates de match données par Kefesh.**
+- **Fête foraine de Rodez : pas d'édition d'automne.** Elle se tient au Val de Bourran en mai-juin. En automne, la
+  Ville n'organise qu'une foire annuelle et un marché aux chrysanthèmes (fin octobre, sans date fixe). Inutile de la
+  rechercher d'octobre à janvier.
+- **Piège `days_of_week`** : ne jamais s'en servir pour des dates isolées. Un `dow=[5]` du 23/10 au 11/12 affiche
+  8 vendredis au lieu de 2 séances. Pour des dates non régulières, **créer une entrée par date**.
+- **Tags** : les agents produisent volontiers des tags accentués et espacés (`Noël`, `marché de Noël`, `à revérifier`),
+  affichés tels quels en badges `#…` par l'application. Normaliser systématiquement après collecte : minuscules,
+  sans accents, tirets ; et `à revérifier` → `a-confirmer`.
+- **Nouvelles sources bloquées (30/09/2026)** : fr.milesrepublic.com (429 + checkpoint Vercel), trainerday.com (403),
+  liguesdefoot.fr (403), footmercato.net/club/<club>/calendrier (404 ; les pages `/live/<id>-<match>` fonctionnent),
+  worldfootball.net (402), maxifoot.fr (404), aquavallon.fr (DNS inexistant → passer par
+  `rodezagglo.fr/informations-pratiques/le-pole-aquatique/`), le-sportif.com/calendrier (404),
+  judo-jra.ffjudo.com/agenda (404, utiliser `/evenement`), scorenco.com (JS vide), mjcrodez.fr/en-famille (404),
+  luc-la-primaube.fr/agenda (vide sans JS → passer par rodezagglo.fr), aveyron-culture.com (agenda vide).
+  Mairies toujours injoignables : sainte-radegonde12.fr, druelle-balsac.fr, laissac-severac-leglise.fr,
+  salles-la-source.fr, agen-daveyron.fr, calmont12.fr, clairvaux-aveyron.fr, sebazac-concoures.fr,
+  marcillac-vallon.fr, flavin.fr. **Leurs programmes Halloween et Téléthon communaux restent invérifiables.**
+- **Hors zone, à ne plus proposer** : Ségur (21,8 km), Bertholène est en revanche à 16,8 km et donc éligible.
+- **À rechercher explicitement à la prochaine veille** : le programme définitif de **Noël à Rodez** (marché place
+  Foch, patinoire place de la Cité, village du Père Noël, grande roue, petit train : la page
+  `rodez-tourisme.fr/agenda/noel/` affichait encore l'édition 2025 au 30/09 — la fiche actuelle repose sur l'appel à
+  manifestation d'intérêt et porte `a-confirmer`, **à remplacer dès la publication**) ; patinoire d'Onet à
+  l'Athyrium ; **Téléthon de Rodez et de l'agglo** (seul Druelle-Balsac est annoncé, en provisoire) ; **Halloween au
+  Haras de Rodez** (toujours rien) ; **stages de Noël** de la MJC de Rodez, de la MJC d'Onet (inscriptions le 28/11),
+  du RAF, du Stade Rodez Athlétisme et du Patio — tous attendus vers la mi-novembre ; ateliers « Mes vacances au
+  musée » de Noël (Soulages, Fenaille, Denys-Puech) ; avant-premières et ciné-goûters du **CGR Rodez** (publiés à
+  2 semaines, son API est bloquée par le proxy) ; animations de Noël des musées et de la médiathèque du 23/12 au
+  04/01 ; programmes Toussaint de **Terra Memoria** (05 65 44 69 27) et de l'espace archéologique de **Montrozier**
+  (05 65 70 71 45) ; **heures des matchs N3F du ROC** ; calendriers de **Rodez Basket** et du volley ruthénois,
+  introuvables cette semaine ; **Fête de la science en Aveyron** (aucun programme départemental publié).
