@@ -216,3 +216,99 @@ Donner en 10 lignes maximum : nombre total d'événements, nouveaux, supprimés,
   04/01 ; programmes Toussaint de **Terra Memoria** (05 65 44 69 27) et de l'espace archéologique de **Montrozier**
   (05 65 70 71 45) ; **heures des matchs N3F du ROC** ; calendriers de **Rodez Basket** et du volley ruthénois,
   introuvables cette semaine ; **Fête de la science en Aveyron** (aucun programme départemental publié).
+
+### Veille du 07/10/2026
+
+- **Le piège le plus coûteux de la semaine : les fiches d'agenda qui décrivent l'édition précédente.** Deux cas, tous
+  deux détectés par le croisement Kefesh, pas par la collecte :
+  - `rodez-tourisme.fr/offres/mes-vacances-de-la-toussaint-au-musee-soulages-rodez-fr-3895769/` est passée en **404** et
+    décrivait le programme de l'an dernier : les 5 ateliers « Cinéma d'animation » / « Machinations créatives » qu'elle
+    avait fournis le 20/09 étaient **absents du programme officiel** publié le 01/10 par le musée. Supprimés et
+    remplacés par les 9 vrais ateliers.
+  - `kiwanis.fr/agenda/15eme-salon-chocolat-delices/` est une page d'archive **sans année** annonçant la 15e édition les
+    31/10-01/11 ; la vraie édition 2026 est la **20e, les 21 et 22 novembre** (fiche de la Ville).
+  **Règle à appliquer :** pour tout événement annuel récurrent, se fier à la **page de l'organisateur** (le musée, le
+  club, l'association), jamais à une fiche d'agrégateur ou d'office de tourisme seule ; un numéro d'édition ou une page
+  sans millésime est un signal d'alarme. L'**agenda propre du musée Soulages** (`musee-soulages-rodez.fr/fr/agenda/`)
+  est plus fiable que les fiches Tourinsoft qui le recopient.
+- **Piège de l'ordre des fichiers passés à `merge.py`** : les fichiers sont traités **dans l'ordre de la ligne de
+  commande**. Si un fichier de re-vérification **renomme** un événement, il est appliqué *après* les fichiers de
+  collecte, et l'événement renommé se retrouve en double (cas vécu : « Extrem'Ados » renommé « NovAdo invite le
+  Conservatoire » alors que la collecte avait déjà créé l'entrée sous ce nom). **Passer le fichier de re-vérification
+  en premier**, et dans tous les cas faire après fusion un balayage « même date + même heure + même lieu », qui attrape
+  ce que `same_event()` laisse passer (noms de salle divergents : « Athyrium » vs « Espace Athyrium », tiret cadratin
+  vs trait d'union).
+- **`kefesh.py` peut faire un faux positif de doublon** : `same()` conclut à l'identité sur le seul ratio de titre
+  (≥ 0,6) sans contrôler la commune. Un « Yoga enfant et famille » à Onet-le-Château a été masqué par un « Atelier yoga
+  en famille » à Laissac, même jour même heure. Relire la liste `--dump` et pas seulement les « manquants ».
+- **Croisement Kefesh (07/10/2026)** : 172 événements à venir, 57 déjà présents, 115 manquants. 25 ajoutés (ateliers de
+  Toussaint du musée Soulages, explorations sensibles du musée Denys-Puech, journée « Onet Cap », yoga enfants/famille),
+  2 corrections de fond (Soulages, salon du chocolat), ~85 écartés comme adultes, ~25 hors fenêtre.
+  **Kefesh se trompe pour la 4e semaine consécutive** sur RAF - Montpellier (16/10 au lieu du 19/10).
+- **Sources nouvellement utiles**
+  - **`12actu.com` : la meilleure trouvaille de la semaine.** Agenda structuré en **JSON-LD**, sans paywall :
+    `https://www.12actu.com/agenda?categorie=<famille|spectacles|litterature|fetes|sport|cinema|expos|marches|concerts>&page=N`
+    (et `/rodez/agenda?...`). Fournit **lat/lng, adresse et âges** → géocodage gratuit, pas besoin de Nominatim.
+    À mettre en source paginée prioritaire.
+  - `bases.athle.fr/asp.net/liste.aspx?frmbase=calendrier&frmmode=1&frmespace=0&frmdepartement=012&frmsaison=2026|2027`
+    (calendrier FFA Aveyron complet — remplace staderodez.athle.fr et cda12.athle.fr, tous deux en 503).
+  - `allocine.fr/salle/cinema-W1200/avant-premiere/` (W1200 = CGR Rodez) : les avant-premières, là où l'API du CGR est
+    bloquée par le proxy.
+  - `unidivers.fr/events/categorie/rodez/` (8 pages) et les fiches `unidivers.fr/event/<slug>-<ville>-aveyron-<date>/` :
+    donnent horaire **+ âge + tarif** là où les autres agrégateurs sont muets.
+  - `cpie-rouergue.com` (et non `.fr`, qui n'a pas de DNS) : `/cpie-du-rouergue/agenda/month/0/year/0`.
+  - `la-baleine.eu/la-baleine-le-theatre/programmation-la-baleine/` affiche bien la saison 2026-2027 (le piège du vieux
+    PDF signalé le 20/09 n'existe plus).
+  - Les agendas paginés de **ville-rodez.fr et rodezagglo.fr répondent en `curl`** (encoder les crochets :
+    `?id1%5BcurrentPage%5D=N`), nettement plus rapide que WebFetch ; les fiches Diffusio `rodezagglo.fr/fiche/agenda/<slug>`
+    contiennent **toutes les dates multiples, les âges et les tarifs** (les 9 ateliers Soulages tiennent dans une fiche).
+  - `tourisme-aveyron.com` : le filtre de dates `ReactWay[d]` **n'est pas appliqué côté serveur** (4 051 résultats),
+    mais la **recherche plein texte `ReactWay[q]=<mot-clé>` marche très bien**.
+  - **PDF : `pdftotext` (`/usr/bin/pdftotext`) est installé et fonctionne** — le plus simple. `pdfminer.six` s'installe
+    avec `pip install --break-system-packages` mais ne tourne que sous `python3.13` (`python3` est un 3.11 sans le module).
+- **Sources nouvellement bloquées** : archives.aveyron.fr (403), ludotheque.ville-rodez.fr (DNS inexistant — la
+  ludothèque est intégrée à la médiathèque), competitions.ffbb.com et resultats.ffbb.com (403 / 503),
+  ffecompet.ffe.com (403), sport-flash.com (403), lepetitjournal.net (403 en WebFetch **et** en curl),
+  sortirenaveyron.com et bougeenfamille.com (**domaines inexistants**), kidiklik.fr/12 (404, pas d'édition Aveyron),
+  itftennis.com (page vide), mjc-onet*.fr (502), parc-saint-hubert.com (502), zamcreatif.fr/ateliers (liste les
+  ateliers mais **sans dates ni âges**). **HelloAsso est en 403 même sur la page d'un événement précis** : piste à
+  abandonner. **`mediatheque.ville-rodez.fr` : 503 sur une dizaine de tentatives réparties sur toute la session**, en
+  WebFetch comme en curl — les animations de la médiathèque de Rodez sont invérifiables depuis trois veilles.
+- **Pièges de fiabilité** : `fest.fr` **mélange les descriptifs d'une fiche à l'autre** (« Tourne fête » porte le texte
+  de « Fa'a'amu ») — ne jamais reprendre ses descriptions, recouper sur 12actu ou unidivers.
+  `ladepeche.fr/recherche` répond 200 mais **ignore la requête** (renvoie les derniers articles) : inutilisable.
+  `rodez-tourisme.fr/agenda` est désormais **100 % JS** : seules les fiches sont statiques, passer par la pagination de
+  ville-rodez.fr et rodezagglo.fr. `oazis.app` a fourni une **représentation fantôme** de Colinet 2026 le 19/11 : la
+  fiche officielle de l'agglo ne donne que les **20, 21, 27 et 28 novembre**.
+  `centrepresseaveyron.fr` en curl : le corps de l'article est lisible **en entier avant le mur d'abonnement**
+  (extraire `<article>` puis dé-baliser).
+- **Sport** : **Rodez Basket est descendu en Prénationale** (Centre Presse du 14/09/2026), d'où son absence des pages
+  nationales de la FFBB — son calendrier reste introuvable, comme celui du volley (club = **MJC Rodez volley**,
+  Prénationale F et Régionale 1 M). Les **heures des matchs N3F du ROC** restent introuvables : rochandball.com publie
+  en images (lisibles avec l'astuce `curl` + Read) mais ne donne que des week-ends, et api-dofa.ffhandball.fr est
+  injoignable (502). Les 4 matchs N3F de la fenêtre sont en base aux bonnes dates, sans horaire.
+  `rugbyamateur.fr/club/rodez-rugby/calendrier/` a confirmé tous les matchs de rugby déjà en base, sans changement.
+- **Noël à Rodez : toujours pas de programme au 07/10.** `rodez-tourisme.fr/agenda/noel/` et ses sous-pages affichent
+  **encore l'édition 2025-2026** ; `ville-rodez.fr/vivre-a-rodez/.../noel-a-rodez/` est en 404. Seul document officiel :
+  l'appel à manifestation d'intérêt `ville-rodez.fr/uploads/2026/07/Appel-a-Manifestation-Noel-2026.pdf`, qui fixe
+  l'occupation du domaine public **du 05/12/2026 au 03/01/2027** (marché place Foch + animation familiale place
+  d'Armes). ⚠️ **Une recherche web renvoie volontiers « 6 déc. - 4 janv., 27 chalets, grande roue » : c'est le
+  programme 2025, à ne pas reprendre.**
+- **Fête foraine d'automne : confirmé inexistant** (rappel). Le **marché aux chrysanthèmes** se tient à la salle des
+  fêtes « fin octobre / début novembre » **sans date ferme** (`ville-rodez.fr/quotidien/cadre-vie/marches-foires/`) :
+  ne pas le saisir tant qu'aucune date n'est publiée. Aucun cirque de passage, aucun feu d'artifice, aucune animation
+  Nouvel An dans la fenêtre.
+- **Anomalie non tranchée** : le flyer MJC de la Toussaint place la « découverte du flamenco » au **20/10**, la base
+  l'a au **23/10**. L'extraction du PDF peut désaligner les étiquettes de date des encadrés : à vérifier par téléphone
+  (05 65 67 01 13) ou sur `mjcrodez.mapado.com`.
+- **À rechercher explicitement à la prochaine veille** : programme détaillé de **Noël à Rodez** (l'entrée actuelle
+  repose sur l'AMIC et porte `a-confirmer`) ; **patinoires** (place de la Cité et Athyrium d'Onet) ; **Téléthon de Rodez
+  et de l'agglo** (seul Druelle-Balsac est annoncé) ; **Halloween au Haras de Rodez** (annoncé comme récurrent mais sans
+  date 2026 — revérifier vers le 20/10) ; **stages de Noël** de la MJC de Rodez, de la MJC d'Onet (inscriptions le
+  28/11), du Patio, du RAF et du Stade Rodez Athlétisme (attendus mi-novembre) ; **« Mes vacances au musée » de Noël**
+  (Soulages, Fenaille, Denys-Puech : leurs agendas s'arrêtent au 16/12) ; animations de Noël des musées et de la
+  médiathèque du 23/12 au 04/01 ; **ciné-goûters et avant-premières du CGR Rodez** ; **Nuits de la lecture 2027, du 20
+  au 24 janvier, thème « l'enfance »** (confirmées au niveau national, aucun programme local publié — dans la fenêtre,
+  à chercher en décembre) ; **heures des matchs N3F du ROC**, **calendriers de Rodez Basket (Prénationale) et du volley
+  ruthénois** ; marchés de Noël d'Onet, Luc-la-Primaube, Sébazac, Le Monastère, Baraqueville et Pont-de-Salars
+  (rien publié) ; **Games of Geek**, de retour à Rodez en 2027 à une date encore inconnue.
