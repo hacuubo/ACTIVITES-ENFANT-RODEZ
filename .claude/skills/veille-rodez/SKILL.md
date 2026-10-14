@@ -312,3 +312,96 @@ Donner en 10 lignes maximum : nombre total d'événements, nouveaux, supprimés,
   à chercher en décembre) ; **heures des matchs N3F du ROC**, **calendriers de Rodez Basket (Prénationale) et du volley
   ruthénois** ; marchés de Noël d'Onet, Luc-la-Primaube, Sébazac, Le Monastère, Baraqueville et Pont-de-Salars
   (rien publié) ; **Games of Geek**, de retour à Rodez en 2027 à une date encore inconnue.
+
+### Veille du 14/10/2026
+
+- **La leçon de la semaine : une page officielle peut décrire un état périmé, et l'outil de réservation de
+  l'organisateur fait foi contre son propre dépliant.** Trois cas, tous détectés par recoupement, aucun par la
+  collecte initiale :
+  - **MJC de Rodez** : le flyer PDF des vacances d'automne (`mjcrodez.fr/uploads/.../stages-et-activites-decouvertes-vacances-dautomne-2026.pdf`)
+    a été **remanié après publication**. Il plaçait « découverte du flamenco » au 23/10 alors que la billetterie
+    **`mjcrodez.mapado.com` donne le mardi 20/10** (deux fiches : 5-7 ans à 10 h, 8-12 ans à 14 h), et il **omet
+    8 stages** pourtant ouverts à la réservation (reportage photo « La cathédrale a 500 ans », multisport 6-8,
+    couture porte-monnaie, flamenco 8-12, cirque 7-11, cirque 4-6, théâtre enfants 8-12, calligraphie japonaise).
+    **`mjcrodez.mapado.com` devient la source primaire de la MJC** ; le PDF n'est qu'un indice. La page d'accueil
+    Mapado liste les 37 stages avec date, heure et âge (parsing de `__NEXT_DATA__`), mais **pas les tarifs**
+    (12 € + adhésion, lu sur la fiche de chaque stage).
+  - **`rugbyamateur.fr` a perdu son statut de référence.** Son calendrier de club affichait le 18/10 **deux matchs
+    à domicile incompatibles** (Rodez - Decazeville ET Rodez - Albi) et **réutilisait un même identifiant de match**
+    pour la Fédérale 2 masculine et la féminine. Sa fiche de match donnait « sam 17 Oct 2026 » là où **12actu
+    (article du 12/10/2026) donne « dimanche 18 octobre à 15 h 15 »**, comme la Ville, l'agglo et unidivers.
+    **Nous avons retenu le 18/10** : une page prouvée fausse sur une ligne n'est pas une autorité pour la ligne
+    voisine. La règle du 30/09 (« faire foi à rugbyamateur.fr ») est **annulée** : utiliser en priorité la
+    chronique hebdomadaire Fédérale 2 de **12actu.com**, et ne corriger une date de rugby que sur deux sources
+    concordantes. Conséquence : le match **Rodez - SC Albi féminine du 18/10**, ajouté le 30/09 sur la seule foi
+    de cette page, porte désormais `a-confirmer`.
+  - **« Le Club » (Rodez) programme hors les murs, et les agendas attribuent ses concerts à Rodez.** « La mère Noël
+    est une rockeuse » (12/12) était en base à Rodez : la page de l'organisateur (`leclubrodez.com/etn/...`) la
+    situe **salle René Rieux à MILLAU**, hors zone → supprimée. Idem « Crash Test » du 16/01, qui a lieu **au
+    Studio d'Onet-le-Château**, pas au Club à Rodez. **Vérifier systématiquement la commune réelle des dates du
+    Club** : ses fiches s'intitulent « Le Club à Millau ! », « Le Club à Marcillac ! », « Le Club à Combelles ! ».
+- **Deux doublons de fond que `merge.py` ne peut pas voir** (dates de début différentes, donc jamais comparés) :
+  deux entrées « bébés nageurs » d'Aquavallon (du 19/09 et du 26/09, même créneau du samedi) affichaient l'activité
+  **deux fois chaque samedi** ; et le cross des jeunes de La Primaube existait au 05/11 (article 12actu) et au 07/11
+  (calendrier officiel FFA, qui tranche). **Ajouter au contrôle d'après-fusion un balayage « même lieu + même heure
+  + même `days_of_week` » sur les récurrents, en plus du balayage par date.**
+- **`merge.py` : deux pièges confirmés, à contrôler à chaque fusion.**
+  1. `same_event()` fusionne **deux séances d'âges différents le même jour au même lieu** (flamenco 5-7 / 8-12,
+     cirque 7-11 / 4-6, yoga enfant 9 h 30 / 14 h, yoga famille 11 h / 15 h 30). Sur cette veille, **23 événements
+     distincts ont été avalés** et ont dû être restaurés. Écrire un contrôle de pertes : pour chaque événement
+     d'entrée, vérifier qu'un survivant partage sa date **et son heure**.
+  2. Une **correction passée par un fichier de fusion peut être annulée** : `merge.py` retrouve l'ancienne fiche
+     par son `id` et garde « la plus complète », donc l'ancienne date. La correction du flamenco a été perdue
+     ainsi. **Appliquer les corrections de date directement dans `data/events.json` après la fusion**, pas via un
+     fichier d'entrée.
+- **Sources nouvellement utiles**
+  - **`tourisme-aveyron.com` : filtre géographique non documenté** `?ReactWay[geo]=44.53~2.82~44.17~2.32&ReactWay[currentPage]=N`
+    → 1 323 fiches, 430 dans la zone, **pagination serveur fonctionnelle**. Bien supérieur à la recherche plein
+    texte `ReactWay[q]` (qui ne marche plus, et dont les tirets cassent la requête : écrire `noel`, pas `marche-de-noel`).
+    C'est la meilleure source pour les **petites communes** (Arvieu, Bertholène, Laissac, Salles-la-Source, Mayran,
+    Goutrens, Clairvaux).
+  - **`ville-rodez.fr/fiche/agenda/...` relaie la médiathèque de Rodez** alors que `mediatheque.ville-rodez.fr` est
+    en 503 depuis cinq veilles : c'est par là qu'on obtient la soirée jeux de la ludothèque et les lectures partagées.
+  - `liguesdefoot.fr` répond en ajoutant **`.md`** à l'URL (`/en/clubs/r/rodez-af.md`) ; `foot-direct.com/live/<id>-<slug>` ;
+    `api.sofascore.com/api/v1/team/<id>/events/next/0` (dates fiables, horaires génériques) ;
+    `www.athle.fr/competitions/<id>` pour les fiches FFA. `judo-jra.ffjudo.com/evenement` (pas `/agenda`).
+  - `allocine.fr/salle/cinema-W1200/evenements/` (onglet Événements du CGR, en plus de `/avant-premiere/`).
+  - `curl -sSL` **obligatoire** sur `pontdesalars.fr/agenda` et `moyrazes.fr/agenda` (0 octet sans `-L`), et sur
+    `cpie-rouergue.com` (redirige vers `www.`).
+- **Sources nouvellement bloquées ou inutiles** : `rodezaf.fr` (502), `haras-rodez.fr` (502), `occitanie.basketball`,
+  `basketoccitanie.fr`, `occitanie.ffvb.org`, `api.ffbb.app` (403), `science-en-aveyron.com` (406),
+  `salleslasource.fr` (refuse curl, passe en WebFetch), `la-baleine.eu` (tue la connexion en curl, passe en WebFetch),
+  `aveyron.lpo.fr/agenda` (vide), `lesfrancasderodez.fr` (périmé), `musees.aveyron.fr`, `theatredes2points.fr`.
+  `unidivers.fr` et `fest.fr` ne sont que des **miroirs du même flux DATAtourisme** que tourisme-aveyron : rien de
+  neuf à y chercher. `centrepresseaveyron.fr/recherche` répond mais son classement ignore largement la requête.
+  `rodez-tourisme.fr/agenda/noel/` affiche **toujours l'édition 2025-2026**.
+- **Fiabilité des agrégateurs** : 12actu **et** tourisme-aveyron datent « Rugby Rodez - Stade Belvésois » au
+  13/12/2026 alors que le **descriptif de leur propre fiche dit « le 10 janvier »** (date retenue en base). Lire le
+  corps des fiches, pas seulement leur champ date. Une fiche « fibule » de Montrozier portait une **note de
+  l'éditeur demandant sa suppression** → écartée.
+- **Noël 2026 : absence désormais établie, pas un échec de recherche.** Les 229 fiches de `ville-rodez.fr/agenda` et
+  les 324 de `rodezagglo.fr` ont été parcourues : **zéro** occurrence de « patinoire », « Père Noël », « grande
+  roue », « petit train », « marché de Noël Rodez », « Téléthon ». Seul document officiel : l'AMI
+  `ville-rodez.fr/uploads/2026/07/Appel-a-Manifestation-Noel-2026.pdf` (domaine public **du 05/12/2026 au
+  03/01/2027**), qui fonde l'entrée actuelle avec `a-confirmer`. Aucune patinoire (place de la Cité ni Athyrium),
+  aucun marché de Noël communal (Onet, Luc, Sébazac, Monastère, Olemps, Bozouls, Baraqueville, Marcillac), aucun
+  Téléthon hors Druelle-Balsac, aucun cirque de passage. **Halloween au Haras de Rodez : rien à trois semaines de
+  l'échéance, sur trois veilles — l'édition 2026 n'aura probablement pas lieu.**
+- **Fête de la science en Aveyron : déjà passée** (début octobre, Pont-de-Salars et Saint-Affrique le 10/10). Ne pas
+  la chercher en novembre. **« Games of Geek » a été renommé Anim'Aveyron et déplacé à Druelle-Balsac**, édition
+  2026 en septembre : la piste « retour en 2027 » est caduque.
+- **Question de zone à arbitrer avec le propriétaire du projet** : Arvieu (19,1 km) et Goutrens (19,2 km) sont dans
+  le rayon **à vol d'oiseau**, comme le prescrit la procédure, mais à **≈ 30 km par la route**. 9 activités en
+  dépendent. Si le critère doit devenir routier, le préciser dans `docs/SCHEMA.md` et dans `scripts/validate.py`.
+- **À rechercher explicitement à la prochaine veille** : programme de **Noël à Rodez** (l'entrée repose toujours sur
+  l'AMI) ; **patinoires** ; **Téléthon** de Rodez et de l'agglo ; **marchés de Noël** communaux ; **stages de Noël**
+  de la MJC de Rodez (aucune offre JPS2 sur Mapado au 14/10), de la MJC d'Onet (inscriptions le 28/11), du Patio, du
+  RAF et du Stade Rodez Athlétisme ; **« Mes vacances au musée » de Noël** (les agendas des trois musées s'arrêtent
+  au 16/12) ; animations de Noël de la médiathèque et des musées du 23/12 au 04/01 ; **ciné-goûters du CGR** ;
+  **Nuits de la lecture 2027 (20-24 janvier, thème « l'enfance »)**, à chercher en décembre ; **heures des 4 matchs
+  N3F du ROC** (`api-dofa.ffhandball.fr` en 502 depuis 3 veilles) ; **calendriers de Rodez Basket** (Prénationale,
+  site figé en août 2025) **et du volley MJC Rodez** ; les 5 matchs à domicile de **Rodez AF 2 en National 2**
+  (dates et horaires connus, **stade non confirmé** — le Domaine de Vabre est le centre de formation) ; programmes
+  de vacances de **Terra Memoria** (05 65 44 69 27) et de **Montrozier** (05 65 70 71 45). **Janvier restera creux
+  jusqu'à une veille de décembre** : les programmes MJC, centres sociaux, médiathèques et musées de janvier ne sont
+  pas publiés au 14/10.
