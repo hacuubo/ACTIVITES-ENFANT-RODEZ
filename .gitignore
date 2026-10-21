@@ -3,3 +3,7 @@ __pycache__/
 *.pyc
 node_modules/
 .claude/settings.local.json
+# Pages téléchargées en cours de veille : elles vont dans le scratchpad, jamais ici.
+# index.html est suivi par git, donc cette règle ne l'affecte pas.
+/*.html
+!/index.html
