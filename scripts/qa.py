@@ -61,6 +61,30 @@ if args.before:
     gone = [p for p in before
             if (p.get('end_date') or p.get('date', '')) >= today
             and not any(difflib.SequenceMatcher(None, norm(p['title']), c).ratio() >= 0.85 for c in current)]
+    ids_now = {e['id'] for e in events}
+    gone_ids = [p for p in before
+                if (p.get('end_date') or p.get('date', '')) >= today and p['id'] not in ids_now]
+    print(f'\n== IDS DISPARUS DEPUIS {args.before} : {len(gone_ids)} ==')
+    print("   (contrôle le plus sûr : un titre proche suffit à masquer une fiche écrasée dans le")
+    print("    contrôle par titre ci-dessous. Chaque ligne doit être une suppression VOULUE.)")
+    for p in gone_ids:
+        print(f'  {p["date"]} {p.get("time") or "--:--"} {p["city"]} | {p["title"]} | {p["id"]}')
+    problems += len(gone_ids)
+
+    print('\n== CHANGEMENTS D\'ID (les favoris des utilisateurs sont perdus) ==')
+    n = 0
+    for e in events:
+        if any(p['id'] == e['id'] for p in before): continue
+        for o in before:
+            if o.get('date') != e.get('date') or (o.get('time') or '') != (e.get('time') or ''): continue
+            if norm(o.get('city')) != norm(e.get('city')): continue
+            if difflib.SequenceMatcher(None, norm(o['title']), norm(e['title'])).ratio() >= 0.8:
+                n += 1
+                print(f'  {e["date"]} {e.get("time") or "--:--"} | {o["id"]}\n      -> {e["id"]}')
+                break
+    print(f'  ({n} — rendre son id d\'origine à chaque fiche concernée)')
+    problems += n
+
     print(f'\n== TITRES DISPARUS DEPUIS {args.before} : {len(gone)} ==')
     print('   (une suppression voulue est normale ; sinon la fiche a été écrasée en gardant son id)')
     for p in gone:
@@ -109,6 +133,18 @@ for e in events:
         continue
     occ = sum(1 for i in range((d1 - d0).days + 1) if (d0 + datetime.timedelta(days=i)).isoweekday() in dow)
     if occ >= 10: print(f'  {occ:2d} séances | {e["date"]}..{end} dow={dow} | {e["title"]}')
+
+print("\n== COMMUNE DE L'ID ≠ CHAMP city ==")
+print('   (signature d\'une fiche écrasée par un événement d\'une autre commune :')
+print('    merge.py compare les lieux sur 12 caractères, et « Salle des fêtes de X » et')
+print('    « Salle des fêtes de Y » partagent le même préfixe « salle-des-fe »)')
+n = 0
+for e in events:
+    parts = str(e.get('id') or '').split('_')
+    if len(parts) == 3 and parts[2] != norm(e.get('city')):
+        n += 1; print(f'  {e["id"]} || city = {e["city"]}')
+print(f'  ({n} incohérence(s))')
+problems += n
 
 print('\n== FORMATS ==')
 for e in events:
