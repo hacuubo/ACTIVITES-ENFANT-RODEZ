@@ -97,8 +97,16 @@ Max 1 requête/seconde. Si introuvable : géocoder la mairie de la commune et le
    par son `id` et garde « la plus complète », donc l'ancienne valeur.
 6. Vérifier la cohérence entre le slug de chaque `id` et son `title` : un écart révèle une fusion ratée d'une
    veille précédente (cas vécu : un `id` « carnet secret » portant le titre d'un atelier de soda).
-7. `python3 scripts/validate.py` doit passer sans erreur (corriger jusqu'à 0 erreur).
-8. Contrôle qualité : `summary` d'une phrase claire, `age_min`/`age_max` cohérents, `audience` juste (`ados` si réservé aux 11-15), `price` renseigné, téléphone au format `05 65 00 00 00`, catégories exactes.
+7. **Réinscrire `source_checked`, obligatoire** — `fuse()` ne remplissant que les champs vides, le
+   `source_checked` mis à jour par un agent est écarté dès que la version de la base est jugée « la plus
+   complète ». Toute la passe de re-vérification devient alors invisible et la veille suivante redemande le
+   même travail (82 fiches concernées le 04/11, dont 77 de l'agent de re-vérification). Après fusion, pour
+   chaque `id` qu'un fichier d'agent a émis avec `source_checked` = aujourd'hui, forcer la valeur dans
+   `data/events.json`. Ne forcer que ceux-là : une fiche que personne n'a rouverte garde sa date d'origine.
+8. Retirer les fiches dont `end_date` (ou `date`) est antérieure au `from` de la période : `merge.py` garde
+   tout ce qui finit « après hier », ce qui laisse passer 2 ou 3 événements de la veille du jour J.
+9. `python3 scripts/validate.py` doit passer sans erreur (corriger jusqu'à 0 erreur).
+10. Contrôle qualité : `summary` d'une phrase claire, `age_min`/`age_max` cohérents, `audience` juste (`ados` si réservé aux 11-15), `price` renseigné, téléphone au format `05 65 00 00 00`, catégories exactes.
 
 ## 4. Publication
 
@@ -699,3 +707,222 @@ Donner en 10 lignes maximum : nombre total d'événements, nouveaux, supprimés,
   24/02, handball N3F Muret et N1M Montpellier le 27/02, volley F1O/M1O le 27/02, quine de l'APE
   d'Escandolières à Goutrens le 28/02, **visite dansée de l'expo Nevelson le 18/02/2027** (3 représentations,
   un jour après la fenêtre de cette semaine).
+
+### Veille du 04/11/2026
+
+- **La leçon de la semaine : une erreur dans le briefing de l'orchestrateur se propage dans les conclusions
+  des agents.** J'avais écrit que les vacances d'hiver de la zone C allaient du 20/02 au 08/03/2027 ; elles
+  vont du **samedi 6 au lundi 22 février 2027** (vérifié : franceinfo, académie de Toulouse, arrêté JO du
+  22/10/2025). Conséquences : la quinzaine entière tombait dans la fenêtre sans que personne ne la cherche,
+  et un agent a signalé comme « incohérent » le stage « comédie musicale Encanto » de la MJC de Luc
+  (08-12/02) au motif qu'il tombait « en période scolaire ». Un seul agent a relevé l'erreur, en citant ses
+  sources. **À faire désormais au début de chaque veille : vérifier le calendrier scolaire de la zone C et
+  l'inscrire dans le briefing.** Les cinq agents encore en cours ont été relancés avec la correction, ce qui
+  a produit 3 entrées de février de plus et surtout des absences *établies* au lieu d'un angle mort.
+- **`merge.py` a silencieusement annulé toute la passe de re-vérification.** 82 fiches rouvertes ce jour (dont
+  77 des 85 de l'agent de re-vérification) ont gardé un `source_checked` périmé, parce que `fuse()` ne
+  remplit que le vide et que la version de la base était « la plus complète ». Sans correction, la veille
+  suivante aurait redemandé les 87 mêmes vérifications. **C'est désormais l'étape 7 de la procédure.**
+- **Les deux motifs de corruption du 28/10 se sont reproduits à l'identique**, plus un troisième :
+  1. `atelier-archi-maquettes-et-kapla-a-sainte-catherine_2026-10-14` a repris le titre et l'heure de
+     l'expo « Pierres en mouvement » (même galerie, mêmes dates), dont l'`id` a disparu — **exactement le
+     cas décrit le 28/10**.
+  2. `marche-de-noel-de-bertholene_2026-12-13` a repris le titre, le lieu **et la commune** du marché de
+     Noël de Pont-de-Salars (préfixe `salle-des-fe` sur 12 caractères), dont l'`id` a disparu.
+  3. **12 fiches de la base qu'aucun agent ne ré-émettait ont été purement avalées** (5 matchs de volley au
+     gymnase Frugère, l'escape game du musée Soulages, Extrem'Ados théâtre, l'accueil Mix'Art du vendredi,
+     l'art floral du 05/12, la 2e séance de « Tourne fête », l'expo Pierres en mouvement, le marché de Noël
+     de Pont-de-Salars). Le bloc `== IDS DISPARUS ==` de `qa.py --before` les a toutes trouvées : **c'est le
+     contrôle le plus rentable, à lire ligne par ligne, chaque ligne devant être une suppression voulue.**
+  Toutes rétablies depuis `avant.json`, avec leur `source_checked` d'origine.
+- **`merge.py` ne peut pas garder deux séances d'un même spectacle le même jour au même lieu**, même quand
+  les titres portent l'heure : `same_event()` renvoie vrai dès que le ratio des titres atteint 0,6, et
+  « … (séance de 15 h) » et « … (séance de 19 h) » sont à 0,98. Quatre séances ont dû être réinsérées à la
+  main après fusion (Vive la Magie 19 h, « Fabrique ta ville » 15 h, conte « Le Voyage de Cora » 11 h, et la
+  lecture dans la cabane de Lucie Félix, qui avait en plus légué son horaire de 14 h 30 à l'exposition
+  d'un mois qu'elle côtoyait). **Ne jamais compter sur la fusion pour les séances multiples : les ajouter
+  après, directement dans `data/events.json`.**
+- **Aubéria l'Atelier : la meilleure source de la semaine, et un champ de mines pour la fusion.**
+  `auberia.fr/ateliers`, `/ateliers/noel` et surtout `auberia.fr/product/<id>/<slug>` donnent date, horaire,
+  **âge minimum explicite** et tarif pour 27 ateliers datés de novembre, **relayés par aucun agenda Diffusio
+  ni par tourisme-aveyron**. Mais l'atelier enchaîne deux à trois séances différentes par créneau au même
+  endroit : la fusion en a avalé 4 et a laissé 3 `id` porteurs du titre d'un voisin. **Méthode retenue :
+  après fusion, supprimer tout le bloc `venue == "Aubéria l'Atelier"` et le réinsérer tel quel depuis le
+  fichier de l'agent** (aucun de ces `id` n'existait avant, donc aucun favori en jeu). Plus sûr et plus
+  rapide que de rapiécer les titres un par un.
+- **Noël à Rodez : l'emplacement est tranché — place Foch.** L'arrêté
+  `ville-rodez.fr/uploads/2026/10/AG-2026-0847-ODP-C-S_Reglement-marche-de-noel_du-11-12-au-31-12.pdf`,
+  illisible avec `pdftotext` (il ne rend que l'accusé préfectoral) mais **lisible page par page avec
+  `pdftoppm -png -r 110` puis l'outil Read**, donne : marché **place Foch du 11/12 08 h au 31/12 19 h**,
+  20 chalets, **fermé le 25/12**, lun-jeu 10 h-19 h, ven+sam 10 h-21 h, dim 10 h-20 h, entrée gratuite
+  (« aucune voiture place Foch ou place Tristan Richard »). Deux agents l'ont lu indépendamment. Le tag
+  `a-confirmer` est levé. **Restent introuvables pour la 6e veille** : patinoire (place de la Cité et
+  Athyrium d'Onet), grande roue, village du Père Noël, petit train, forêt lumineuse, et les **horaires des
+  5 déambulations des Enjoliveurs** (la DEC2026-303 dit « à déterminer sur la feuille de route » et aucune
+  décision postérieure n'est parue). 561 actes réglementaires dépouillés, à jour au 03/11 (dernier
+  AG-2026-0854, dernière décision DEC2026-304) ; 36 noms de `uploads/2026/{10,11,12}/2026_PROG-noel*`,
+  `2026_VACnoel*` testés, tous en 404. Le visuel de la page « animations » est encore
+  `uploads/2024/11/2025_NOEL.jpg`, avec un texte générique citant « forêt lumineuse » **sans aucune date**.
+  ⚠️ Piège reconfirmé : « 6 déc.-4 janv., 27 chalets, grande roue » = **articles 12actu des 25/11 et
+  04-05/12/2025**. `rodez-tourisme.fr/agenda/noel/` affiche l'édition 2025 pour la 6e veille.
+- **Téléthon de Rodez et d'Onet : rien, 5e veille** (552 puis 561 actes, page d'accueil, `?s=telethon`,
+  17 rubriques de commune de Centre Presse sur 3 pages de profondeur, 3 287 URLs d'articles). Mais la semaine
+  a livré **4 Téléthons inédits** : Sébazac-Concourès 14-15/11 (avec initiation au pickleball dès 10 ans),
+  la **boum du conseil municipal des enfants de Druelle le 20/11**, la kermesse sportive familiale et le
+  quine de Pont-de-Salars les 5-6/12, et Goutrens le 28/11.
+- **Sources nouvellement utiles**
+  - **`alentoor.fr` : la trouvaille de la semaine.** **403 en WebFetch, 200 en `curl -sSL`.** Agenda par ville
+    et par rubrique : `alentoor.fr/<commune>/agenda/<rubrique>?page=N` (`activites-enfants`,
+    `activites-loisirs`, `spectacles`, `expositions`, `brocantes-vide-greniers`, `sports`), plus `/aujourdhui`
+    et `/weekend`. **Chaque fiche de la liste porte son propre JSON-LD `Event` complet** (pas un `ItemList`) :
+    `startDate` avec heure et fuseau, `offers.price`, `isAccessibleForFree`, adresse, et une `description`
+    qui contient le programme détaillé. Il couvre les communes voisines et il est le **seul des huit
+    agrégateurs testés à connaître le Festival Vive la Magie**.
+  - **`baraqueville.fr` répond de nouveau (200)** — le REX du 23/09 la donnait injoignable :
+    `/activites/evenements/` + fiches `/agenda/<slug>/`, affiches en `wp-content/uploads/AAAA/MM/`.
+    **C'est par là qu'arrivent les cirques** : le Cirque Olympia des 14-15/11 vient de son affiche JPG.
+  - **`vide-greniers.org/evenements/<Commune>-12` puis `/evenement/<id>`** : horaires, salle exacte,
+    organisateur et gratuité des bourses aux jouets et braderies dans un rayon de 50 km.
+  - **`theatredes2points.mapado.com`** (trouvé dans `minisite.moduleList` de `mjcrodez.mapado.com`) :
+    27 ticketings de la saison du Théâtre des 2 Points, fiches `/event/<id>-<slug>` avec `entities.eventDates`
+    et `ticketPrices` en centimes. ⚠️ **les titres préfixés d'un `*` sont les séances SCOLAIRES**
+    (`*Juste Iréna` = 23/02 14 h 30) : à écarter systématiquement.
+  - **MJC `loadmore_agenda` remarche** : il faut POSTER
+    `action=loadmore_agenda&page=N&query=<la chaîne JSON du bloc `loadmore_agenda_params` de /agenda/>`.
+    Sans `query` la réponse est vide — c'était le blocage constaté en début de session. 7 pages donnent tout
+    l'agenda jusqu'en mai 2027. En revanche `mjcrodez.fr` renvoie sa **page d'accueil pour toute URL en
+    `curl`** : passer par WebFetch.
+  - **`tourisme-aveyron.com`** : le JSON-LD de la liste porte **`dateCreated`/`dateModified`** — plus besoin
+    de décoder le suffixe `FMA` : filtrer `dateCreated >= <date de la veille précédente>` isole les fiches de
+    la semaine (22 cette fois). Et **le filtre de dates `ReactWay[d]=~AAAA-MM-JJ~AAAA-MM-JJ` est désormais
+    appliqué côté serveur** quand on le combine au filtre géo (67 fiches pour janvier-février au lieu de
+    4 051) : le REX des 07 et 14/10 est périmé. C'est la méthode pour sonder un mois précis.
+  - **`12actu.com/agenda?page=N` va maintenant jusqu'à la page 51** (1 092 événements, `startDate` max
+    05/12/2027) : le blocage « s'arrête au 16/11 » du 28/10 est levé. `?categorie=` reste ignoré sur
+    `/agenda` mais **marche sur `/rodez/agenda?categorie=famille&page=N`**. `12actu.com/recherche` est
+    inutilisable en curl (100 % JS) mais **exploitable en WebFetch**. ⚠️ son **slug d'URL est recyclé**
+    (« La cabane de Lucie Félix » vit sous `/agenda/exposition-loucidou-le-loup-et-les-5-sens-…`) et son
+    champ `description` reprend parfois le titre de la fiche voisine.
+  - **`ville-rodez.fr/agenda/?id1%5BcurrentPage%5D=N` marche en curl et reste le relais de la médiathèque**
+    (9e veille sans `mediatheque.ville-rodez.fr`) : les deux séances « Lectures en famille » du 07 et du
+    14/11 tenaient dans une seule fiche. La liste embarque un JSON `{"oiId":…,"url":"/fiche/agenda/…"}`
+    plus fiable que les `href` du HTML, et chaque fiche porte `data-lat`/`data-lng`.
+  - **`ville-rodez.fr` (accueil nu, curl)** portait `uploads/2026/10/Programme-Inauguration-Paul-Lignon.pdf`,
+    absent de l'agenda, qui a livré trois animations gratuites du 04/11 (entraînement public du RAF avec
+    dédicaces, portes ouvertes du stade, expo photos au jardin public jusqu'à fin novembre).
+  - `starting11.com/fixtures/rodez-vs-<adversaire>` : date, journée, stade et coup d'envoi **en GMT**
+    (+1 h en hiver) — remplace `api.sofascore.com` et `liguesdefoot.fr`, tous deux passés en 403.
+  - `centrepresseaveyron.fr/recherche?q=…` en `curl -sSL` a donné la **première information sur Rodez Basket
+    depuis 5 veilles** : le club joue **à l'Amphithéâtre**, J6 contre Jegun le samedi 07/11 à 20 h.
+  - `judo-jra.ffjudo.com/evenement` confirme la Coupe Zone Nord Minimes au Dojo de Rodez le 10/01/2027.
+- **Sources nouvellement bloquées ou faussées**
+  - **`athle.fr/bases/liste.aspx` et `bases.athle.fr` : 502 du proxy sur 7 tentatives curl, 503 en WebFetch**
+    — nouveau blocage, le calendrier FFA de l'Aveyron n'a pas pu être dépouillé cette semaine (régression par
+    rapport au 28/10, où un seul appel rendait toute la saison).
+  - **Les images statiques d'`onet-le-chateau.fr` sont 403 avec un User-Agent de navigateur et 200 sans
+    aucun UA** — l'inverse exact de l'astuce notée le 28/10. Le programme du Patio n'a pu être relu que
+    comme ça. Les pages restent en 418 en curl et passent en WebFetch.
+  - **`foot-direct.com` décale systématiquement les matchs de National 2 d'un jour** : ne s'en servir que
+    pour l'adversaire, jamais pour le jour. `onet-le-chateau.fr/evenements/page/N/` fait foi (OCF au
+    samedi 18 h).
+  - **Ne pas conclure à la disparition d'un récurrent d'Onet sur sa fiche individuelle**, qui n'affiche
+    qu'une occurrence : lire la liste paginée. (« Un mercredi autrement » a lieu le 18/11 **et** le 16/12
+    alors que sa fiche n'annonce que le 28/10.)
+  - `moyrazes.fr` : la liste répond mais ses fiches sont en **erreur critique WordPress**.
+  - `conservatoire-aveyron.fr` 502 (3e veille) ; `maisondulivre.com` et `terramemoria.fr` 403 ;
+    `musees.aveyron.fr` et `aveyron.fr` répondent 200 avec un corps vide de 222 octets ;
+    `mjc-onet*.fr` sans DNS ; `api-dofa.ffhandball.fr` 502 (6e veille) ; tous les domaines du basket
+    aveyronnais sans DNS. `jds.fr/rodez/agenda/` répond mais ses listings Rodez sont vides : utile comme
+    **test d'absence en une requête**.
+- **Arbitrages tranchés cette semaine**
+  - **Rodez Rugby - SO Millau du 08/11 : 15 h 30** (fiche de la Ville créée le 30/10 « dimanche 8 novembre à
+    15 h 30 » + rugbyamateur, deux sources). Le **14 h 45** du programme municipal est l'heure des
+    **animations d'inauguration** du stade rénové (défilé des sections jeunes et féminines, jeu-concours), ce
+    qui explique précisément pourquoi ce match seul sort du 15 h 15 habituel. Un troisième agent citait une
+    fiche Tourinsoft **plus ancienne** (`FMA-20260825153036044`), qui ne donne aucune heure : son objection
+    tombe. **Leçon : comparer les horodatages `FMA` des fiches avant de les opposer.**
+  - **Opéras du CGR** : le critère n'est pas le genre mais **l'heure de fin**. « Carmen » reste en base
+    (séances de 15 h 45 et de 10 h 30, des matinées) ; « Le Crépuscule des Dieux » (03/02, 17 h 45, Wagner
+    ≈ 5 h) et « Cosi fan tutte » (23/02, 19 h 45) sont écartés car ils finissent vers 23 h. Il n'y a donc
+    pas d'incohérence à avoir des opéras en base et à en refuser d'autres.
+  - **« NovAdo fait court » et « NovAdo invite le Conservatoire »** : les **deux pages officielles de la MJC**
+    annoncent « Dimanche 15 novembre 2026 à 17:00 » au Théâtre des 2 Points, participation libre. Deux
+    spectacles ne peuvent pas occuper la même salle à la même heure : les deux fiches ont été **fusionnées en
+    une** (id `novado-fait-court_…` conservé), avec le doute consigné dans la description et le tag
+    `a-confirmer`. À confirmer au 05 65 67 01 13.
+  - **Bourse puériculture de l'APE à Souyri : le 15/11, pas le 21/11** (trois agents concordants ; le 21/11
+    est la **gratounade de Pont-les-Bains**, un autre événement). L'`id` historique
+    `…_2026-11-21_salles-la-source` est **conservé** malgré la date corrigée, pour ne pas perdre les favoris.
+  - **VR « Outrenoir » au musée Soulages : interdite aux moins de 12 ans** (`rodez.tickeasy.com` :
+    « interdit aux personnes souffrant d'épilepsie, au moins de 12 ans ») → `age_min` passé de 8 à 12.
+  - **« Chambres adolescentes » finit bien le 22/11** (« Les Invisibles » démarre le 26/11) : tag levé.
+  - **« Tourne fête » du 23/01** : spectacle de 35 min avec une 2e séance à 10 h 45, donc la séance de
+    9 h 30 ne peut pas finir à 11 h 15 → `end_time` corrigé à 10 h 05.
+- **Kefesh (croisement du 04/11)** : 123 fiches normalisées, 102 dans la fenêtre, 59 « manquants » **et** les
+  43 que `same()` donnait pour présents ont été recomparés à la main. **6 ajoutés** (les 2 « Lectures en
+  famille » de la médiathèque, l'entraînement public du RAF et les portes ouvertes de Paul-Lignon, la soirée
+  roller de Sébazac, le rugby Canton d'Alban du 21/02), **1 correction**, **51 écartés** (≈ 40 adultes :
+  conférences de musée, ateliers Trinquons, cafés des langues, concerts de bar, comedy, drag show, one man
+  show ; hors cible : goûter allaitement, Mois du doc à thème adulte ; hors zone : « Le Club à Millau »).
+  **Kefesh a encore eu raison seul** sur l'entraînement du RAF et les portes ouvertes. Deux pièges nouveaux :
+  `same()` a masqué la soirée roller de **Sébazac** derrière une soirée Halloween de **Mayran** du même jour
+  (il ne contrôle pas la commune), et **Kefesh décale ses slugs d'un cran sur les matchs du RAF**
+  (`copie-de-raf-annecy…` porte le titre « RAF - FC Nantes ») : **ne jamais lire un slug Kefesh comme une
+  confirmation**. Rappel toujours valable : ignorer par principe les dates de match données par Kefesh, mais
+  recouper aussi notre propre base à la billetterie du club.
+- **Vacances d'hiver (6-22/02/2027) : absence établie, pas un échec de collecte.** Trois agents ont cherché
+  séparément : aucun programme de vacances publié (musées — l'agenda de Soulages va pourtant jusqu'au
+  07/03 —, MJC et Mapado, Patio, CGR, médiathèques, Aquavallon, clubs sportifs). `rodezagglo.fr` n'a **aucune**
+  fiche de février ; `12actu` n'a que **33 événements en février pour tout l'Aveyron** contre 595 en novembre.
+  C'est cohérent avec les délais de publication constatés (musées et MJC ≈ 3 semaines, CGR ≈ 2 semaines) :
+  **à rechercher à la veille de mi-janvier**, pas avant.
+- **Janvier-février restent structurellement creux** (52 et 20 entrées) : même constat chez les agrégateurs.
+  Les programmes de janvier des MJC, centres sociaux, médiathèques et musées ne sont pas parus. La série
+  « Activités parents-enfants » du centre social de Rodez paraît mois par mois **vers le 21** : celle de
+  décembre est attendue vers le 21/11.
+- **Choix assumé sur le rugby** : les matchs de **Fédérale B** des 10/01, 17/01, 31/01 et 21/02 sont décrits
+  **dans la description du match masculin du même jour** plutôt qu'en fiches propres, parce que `merge.py`
+  fusionne deux rencontres du même jour au même stade. Les trois dates où la Fédérale B joue sans match de
+  Fédérale 2 (08/11, 22/11, 13/12) ont bien leur fiche. Les matchs de **Fédérale 2 Féminine** portent tous
+  `a-confirmer` : `rugbyamateur.fr` **réutilise les identifiants des matchs masculins** pour ses lignes
+  féminines et aucune deuxième source ne les confirme.
+- **À rechercher explicitement à la prochaine veille** : **patinoire, grande roue, village du Père Noël,
+  petit train, forêt lumineuse** et les **horaires des 5 déambulations des Enjoliveurs** (surveiller les
+  décisions `DEC2026-xxx`, les arrêtés `AG-2026-xxxx` et
+  `ville-rodez.fr/sports-loisirs/culture-loisirs/animations/`) ; **Téléthon de Rodez et d'Onet** (6e veille) ;
+  **stages de Noël** de la MJC de Rodez (offres « JPS2 » sur Mapado), de la MJC d'Onet (**inscriptions le
+  28/11**), du Patio, du RAF et du Stade Rodez Athlétisme — l'absence est établie au 04/11, ils étaient
+  attendus mi-novembre ; **« Mes vacances au musée » de Noël** et les animations du 23/12 au 04/01
+  (`rodez.tickeasy.com` est l'outil pour prouver leur absence) ; **programme vacances de Noël 11-17 ans de la
+  Ville** (chercher un `2026_VACnoel*.jpg` dans `uploads/2026/11|12`) ; **programme de décembre des
+  « Activités parents-enfants »** du centre social (vers le 21/11) et des maisons de quartier ;
+  **ciné-goûters du CGR** (5e veille) ; **Nuits de la lecture du 20 au 24 janvier 2027, thème « l'enfance »**
+  (aucun programme local, à chercher début janvier) ; **heures des 4 matchs N3F du ROC** (7e échec) et des
+  4 réceptions de Pré-Nationale, **calendrier de Rodez Basket** (une seule date obtenue, par la presse) ;
+  **calendrier FFA de l'Aveyron**, non dépouillé cette semaine (`athle.fr/bases` en 502) ; **Terra Memoria**,
+  à trancher par téléphone au 05 65 44 69 27 ; **téléphone de la médiathèque de Rodez**, sur lequel trois
+  agents ont donné trois numéros différents.
+- **Anomalies restées ouvertes** : heure de début de la soirée roller de Sébazac du 07/11 (la fiche n'écrit
+  que « jusqu'à 18 h 30 ») ; heure et salle du quine Jean Auzel à Marcillac du 15/11 ; horaire de
+  l'après-midi jeux de société de Laissac du 09/12 (fiche Tourinsoft qui se contredit, 14 h-16 h retenu
+  d'après son corps de texte, à confirmer au 05 65 69 60 56) ; les **3 horaires de la visite dansée Nevelson
+  du 18/02** et le tarif réel du **Festival Vive la Magie** ; « Quine gourmand » d'Agen-d'Aveyron du 28/11
+  (« 14 h » dans le texte, « 20 h 30 » dans le champ horaire) ; le « Super quine du Rodez Rugby » du 13/11,
+  classé à Onet-le-Château par l'agglo mais dont l'adresse (1 bd du 122e RI) est la salle des fêtes de
+  **Rodez** — retenu à Rodez par deux agents ; **« Croire aux fauves » (24/11), supprimé le 28/10 pour
+  annulation, est de nouveau listé** sur mjcrodez.fr, ville-rodez.fr, 12actu, unidivers, alentoor et
+  tourisme-aveyron sans mention d'annulation : **ne pas le réintroduire sans appeler la MJC**
+  (05 65 67 01 13). « La mère Noël est une rockeuse » (12/12, en réalité à Millau) revient de même chez les
+  quatre agrégateurs : les deux suppressions antérieures sont justifiées, un garde-fou les retire désormais
+  automatiquement après fusion.
+- **Zone** : nouvelle commune en base, **La Loubière (7,6 km)**. Mesurées et dans le rayon mais sans rien à
+  retenir : Calmont/Ceignac 9,6 km, Trémouilles 12,2 km, Manhac 13,5 km, Gramond 19,4 km. **Arvieu (19,1 km)
+  et Goutrens (19,2 km) restent dans le rayon à vol d'oiseau mais à ≈ 30 km par la route** : question
+  toujours à arbitrer avec le propriétaire du projet (9 activités en dépendent, dont la soirée Téléthon de
+  Goutrens du 28/11).
+- **Déjà repérés pour la fenêtre suivante (après le 24/02)** : « Les dimanches du Conservatoire » au musée
+  Soulages le 28/02, handball N1M ROC - Montpellier et N3F Muret le 27/02, volley F1O/M1O le 27/02, quine de
+  l'APE d'Escandolières le 28/02, sortie du club Jeux de société de la MJC au **Festival International des
+  Jeux de Cannes du 25 au 28/02/2027** (ado 13-18 ans 100 €, enfant de moins de 13 ans gratuit — hors zone),
+  « NovAdo fait son cinéma » les **6-7 mars 2027**, et le **carnaval de Luc-la-Primaube le 13/03/2027**
+  (défilé en musique live, spectacle, boum, goûter — le seul carnaval publié de la saison).
