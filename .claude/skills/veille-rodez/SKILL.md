@@ -1139,3 +1139,163 @@ Donner en 10 lignes maximum : nombre total d'événements, nouveaux, supprimés,
   à 20 h, « Madame Bovary… » 16/03, Booder « Ah… l'École ! » 17/03, « Marguerite » à l'Athyrium 18/03,
   « N.Ormes » (cirque) 19/03, Rodez Rugby - Figeac 21/03, « Le journal de Maïa » 23/03,
   « Fin, fin et fin » à La Baleine 25/03, ROC N1M 03/04 et 02/05.
+
+### Veille du 18/11/2026
+
+- **Erreur de briefing à ne pas refaire : Rignac n'est PAS dans les 20 km.** Le briefing distribué aux agents
+  la listait « ~19 km » ; le géocodage Nominatim de la mairie (44.4100 / 2.2884) donne **23,7 km**, et trois
+  agents l'ont signalé indépendamment. Six fiches de Noël avaient déjà été rédigées et ont dû être retirées
+  avant la fusion. **Vérifier chaque commune ajoutée à la liste du briefing avant de la diffuser.**
+  Nouvelle commune mesurée et retenue : **La Loubière / Lioujas, 7,6 km** (absente de `docs/SCHEMA.md`).
+  Belcastel re-mesuré à 19,4 km, Goutrens à 19,2 km, Boussac (12160) à **18,5 km** — tous en zone.
+- **Le contrôle de pertes ne peut pas être automatisé naïvement.** `repair.py --apply` a d'abord rétabli
+  d'un bloc les 45 `id` manquants et porté le fichier à 486 fiches : la moitié étaient des **doublons
+  légitimes** (trois agents émettant le même atelier podcast sous trois `id` différents). La méthode qui
+  marche, et qu'il faut refaire : pour chaque `id` perdu, **chercher dans la sortie un équivalent même
+  commune / plages de dates qui se chevauchent / titre proche**, puis **relire la liste à la main**. Le
+  classifieur automatique s'est trompé dans les deux sens :
+  - il a pris pour des doublons des événements **réellement distincts** dont le titre ne diffère que d'un
+    mot : `Accueil jeunesse Mix'Art les vendredis` vs `les mercredis` (r=0,95), **volley R1 masculine vs
+    féminine** (r=0,89 et 0,92, 4 matchs perdus), **rugby Fédérale B 13 h 30 vs Fédérale 2 15 h 15** du
+    même jour (r=0,84), **broderie vs macramé** (r=0,71) ;
+  - il a pris pour des doublons des **séances sœurs avalées** dont l'homologue d'un autre horaire avait
+    survécu : peinture sur céramique 17 h (le 14 h restait), broderie 14 h (le 10 h 30 restait),
+    **Vive la Magie 19 h** (le 15 h restait, **2e semaine consécutive**), couronne de Noël en tissu.
+  **Le filet qui attrape tout : à la fin, lister les fiches d'`avant.json` encore à venir et absentes de la
+  sortie, et pour chacune chercher un jumeau même date + même heure + même lieu.** Zéro perte confirmée ainsi.
+- **Piège nouveau et vicieux : une fiche corrompue sert d'alibi à la fiche qu'elle a écrasée.**
+  `marche-de-noel-de-bertholene` portait (4e semaine) le titre, le lieu ET la commune de Pont-de-Salars ;
+  du coup le classifieur a trouvé « Marché de Noël de Pont-de-Salars » dans la sortie avec r=1,00 et a
+  déclaré la vraie fiche de Pont-de-Salars « déjà représentée ». **Les deux étaient perdues.**
+  Toujours traiter `qa.py --before` (« COMMUNE DE L'ID ≠ CHAMP city ») **avant** le contrôle de doublons.
+  Même motif sur `boules-de-noel-en-tissu-seance-de-9-h-30`, qui portait « Couronne de Noël en tissu »
+  pour la **3e semaine** — et masquait la vraie fiche `couronne-de-noel-en-tissu`.
+- **`merge.py` a de nouveau écrasé 76 `source_checked`** (132 le 11/11, 82 le 04/11). Étape obligatoire.
+- **`pdfminer.six` est définitivement cassé ici** (`_cffi_backend` manquant, puis `pyo3_runtime.PanicException`
+  de `cryptography`, y compris avec `python3 -I`, et `pip install cffi` ne répare rien). Les quatre agents
+  qui ont eu des PDF à lire sont arrivés à la même solution : **`pdftotext -layout` (poppler, `/usr/bin/pdftotext`)**,
+  et **`pdftoppm -r 130 -png` + l'outil Read** pour les PDF scannés. **Remplacer pdfminer par pdftotext dans le briefing.**
+- **Sources nouvellement utiles**
+  - **`aveyron-environnement.com/agenda/` (portail du CPIE du Rouergue) : la trouvaille de la semaine.**
+    Agenda réel, filtrable, avec fiches `/evenements/<slug>/` complètes (horaires, tarif, lien HelloAsso,
+    téléphone). Il a livré les 3 ateliers ruthénois du cycle 2026-27 : jeu de piste Biodiversité 09/12,
+    pleurotes sur marc de café 23/01, sortie botanique 27/02. ⚠️ **le domaine est `cpie-rouergue.com`**, pas
+    `.fr` (ENOTFOUND). ⚠️ une fiche peut porter « Millau » dans son chapeau alors que son titre et son
+    calendrier disent Rodez : **le titre tranche**.
+  - **Cinéma municipal « Le Fauteuil Rouge » à Baraqueville** (`baraqueville.fr/cinema/`, 14 km) : il publie
+    sa programmation séance par séance et propose les **ciné-goûters** cherchés depuis 7 veilles au CGR.
+    **À repasser chaque semaine.**
+  - **`allocine.fr/salle/cinema-W1200/{evenements,avant-premiere,prochainement}/`** est la seule route qui
+    rende les séances spéciales du **CGR Rodez** (son propre site et son API restent en 404 / JS pur).
+    C'est par là qu'arrivent enfin l'avant-première « Astérix – Le Royaume de Nubie » (22/11) et
+    « Des trésors plein ma poche » (10/12).
+  - **`tourisme-aveyron.com` accepte une bounding box** : `ReactWay[geo]=<nord>~<est>~<sud>~<ouest>`.
+    `…?ReactWay[d]=~2026-11-18~2027-03-10&ReactWay[geo]=44.54~2.84~44.16~2.31` réduit 125 pages à **38**,
+    avec JSON-LD complet. Et la recherche plein texte est **`ReactWay[q]=`** (`[recherche]` et `[k]` sont ignorés).
+  - **`mjcrodez.fr` : l'AJAX `admin-ajax.php?action=loadmore_agenda`** sort les 7 pages d'agenda d'un coup
+    (son `wp-json` est en 401). Et **`mjcrodez.fr/actualite-sitemap.xml` / `agenda-sitemap.xml`** avec leurs
+    `lastmod` sont l'outil de preuve d'absence le plus net pour les stages.
+  - **`foot-direct.com/equipe/rodez-aveyron-football-ii`** donne les horaires des matchs N2 de la réserve,
+    et **`footmercato.net/club/onet-le-chateau-football/`** la grille des confrontations de l'OCF.
+  - **`vide-greniers.org`** : la fiche d'un événement **récurrent** renvoie tout le calendrier annuel dans
+    son JSON-LD quelle que soit la date de l'URL.
+  - **`mjc-onet.com` n'est plus périmé** (il sert la saison 2026-2027) et son `wp-json/wp/v2/media` est ouvert :
+    **le retirer de la liste des sources bloquées.**
+  - `rugbyamateur.fr` : **403 en curl, mais fonctionne en WebFetch.**
+- **Sources nouvellement bloquées** : `lepetitjournal.net` (Cloudflare 403, en curl comme en WebFetch),
+  `kefesh.com` (le `.com`, DNS/502 — le site reste `kefesh.fr`), `montrozier.fr` (502), `bertholene.fr` (reset),
+  `valady.fr` (certificat TLS qui ne couvre pas le domaine), `mairie-sebazac.fr` (502), `caue-aveyron.com`,
+  `cdos12.fr` (520), `kidiklik.fr/12` et `bougeenfamille.com/agenda/aveyron` (404),
+  `aveyron-culture.com/agenda` (404), `competitions.ffr.fr` (redirige vers une appli 100 % JS).
+  **`centrepresseaveyron.fr/aveyron/rodez/page-N` ne pagine plus** : les pages 2 à 6 sont strictement
+  identiques à la page 1. **`rodez-tourisme.fr/agenda/les-sorties-a-rodez/` est rendu en JS** (illisible en
+  curl) et puise dans le même Tourinsoft que `rodezagglo.fr` : **redondant, ne plus y passer 21 pages.**
+  `ville-rodez.fr/agenda/?id1[currentPage]=N` exige **`curl -g`** (sinon « bad range in URL »).
+- **Noël à Rodez : 8e veille, mais l'absence est désormais datée à quelques jours près.**
+  La page `ville-rodez.fr/sports-loisirs/culture-loisirs/animations/`, **modifiée le 16/11**, dit mot pour mot
+  « **Programme en cours d'élaboration** » tout en annonçant animations, ateliers, déambulations musicales,
+  **forêt lumineuse** et marchés. Le bandeau **« Rodez en Fête »** (`uploads/2026/11/2026-noel-web2.jpg`) a été
+  déposé le **16/11** et `2026_NOEL-Web-1.jpg` le 09/11, mais **aucun `*NOEL*prog*.pdf`** dans les 400 derniers
+  médias (API `wp-json/wp/v2/media`, 09/10 → 17/11). `rodez-tourisme.fr/agenda/noel/` sert encore l'édition **2025**.
+  `tourisme-aveyron.com?ReactWay[q]=patinoire` : **0 résultat dans tout l'Aveyron** sur la fenêtre.
+  **Eveniums Concept** (titulaire du lot) : site retrouvé à **`eveniums-concept.com`** — ⚠️ il **répond 404 sur
+  toutes ses pages tout en servant le bon contenu**, ne pas conclure à l'absence sur le code retour ; rubriques
+  « Magie de Noël / Forêt Magique / Spectacle de Noël », mais **aucune mention de Rodez 2026**. Tél. 05 65 42 63 76.
+  Un article de Centre Presse du 06/11 indique que les illuminations doivent être opérationnelles **pour le 3 décembre**.
+  **Le programme est imminent : re-balayer l'API média et la page « animations » en priorité absolue le 25/11.**
+- **Téléthon : enfin des prises, mais toujours rien à Rodez (9e veille).** Trouvés cette semaine :
+  **« En marche pour le Téléthon » à Onet-le-Château** (28/11, 9 h 30, départ du Patio — 1re fois en 9 veilles),
+  **concert de la chorale du Haut Ségala à l'église de Boussac** (28/11, 15 h, via l'affiche déposée sur
+  `baraqueville.fr/wp-json/wp/v2/media`), le **défi sportif « spécial enfant » de Goutrens** (05/12, 15 h) et
+  la randonnée de Fijaguet (06/12). À Rodez même : 0 occurrence dans les 173 fiches de l'agenda de la Ville,
+  les 256 de Rodez Agglo, les 300 médias déposés depuis le 21/10 et les 355 fiches Tourinsoft de la zone.
+- **Marchés de Noël communaux : la semaine du déblocage.** Sébazac-Concourès 22/11, Luc-la-Primaube 29/11,
+  Clairvaux-d'Aveyron 05/12, **Village de Noël des Audacieuses Ruthénoises au Domaine de Combelles**
+  (Le Monastère, 5-6/12 — il était au Haras en 2025, **changement de lieu**). Toujours rien pour Onet, Olemps,
+  Sainte-Radegonde, Marcillac, Baraqueville. ⚠️ la fiche OT de Sébazac porte un `startDate` corrompu
+  (« 26-12-22 ») : **lire la description avant de se fier aux dates du JSON-LD**.
+- **Croisement Kefesh (18/11)** : 128 événements, 73 absents de la base, **52 dans la fenêtre**. Retenus : 7
+  (3 ateliers CPIE, 3 séances « Place verte » au quartier Saint-Éloi, la soirée jeux de rôle « Sagas & Séries »
+  de la MJC du 28/11, dont le **formulaire Google d'inscription de Roll'Dez fait office de page officielle**).
+  Écartés et pourquoi : 6 soirées Beaujolais, 4 cafés des langues, 3 conférences du musée Soulages, Muriel Robin,
+  Les Chevaliers du Fiel, Laurent Boyer ×2, Queerbaret ×2, concerts de bar — **adultes** ; « La Mère Noël est une
+  rockeuse » — **Millau, hors zone** ; « Randonnée autour de la faune » (9 km, 215 m D+, 28 €) — **pas un public
+  enfant** ; les 4 ateliers de Noël des **Escapades Créatives** (21/11, 28/11, 12/12, 18/12) — leur page officielle
+  affiche « **Individuel adulte 45 €** » et aucun âge ; « Adieu monsieur Haffmann » — pièce adulte sans page officielle.
+  **2 faux positifs du script** : RAF - Nantes (05/02) et RAF - Guingamp (12/02) **sont bien en base** — Kefesh
+  écrit la commune du stade Paul-Lignon « **Vieussens** », ce que `kefesh.py` ne rapproche pas de « Rodez ».
+  **Piste d'amélioration du script : normaliser « Vieussens » en « Rodez ».**
+- **Arbitrages tranchés cette semaine**
+  - **OCF - Anglet Genêts : dimanche 06/12 à 14 h 30 au stade de La Roque**, et non samedi 05/12 à 18 h.
+    Deux sources contre la fiche Tourinsoft : la page de la mairie d'Onet (qui donne le stade et 14 h 30-16 h)
+    et la grille des confrontations de footmercato (« Anglet Genets … 06 déc. »). Même famille d'erreur que le rugby.
+  - **Deux bourses aux jouets distinctes à l'Athyrium**, et non un conflit de date : **05/12 9 h-16 h, APE des
+    écoles publiques des 4 Saisons** (avec shooting photo de Noël) et **06/12 9 h-17 h, APEL Saint-Bernard**.
+    Deux fiches vide-greniers.org (1045343 et 1036388), deux organisateurs, les deux `EventScheduled`.
+  - **`handball-n3f-roc-aveyron-muret-hbc_2027-02-27` portait le match N1M ROC - Montpellier** : `id` renommé en
+    `match-n1m-roc-handball-montpellier_2027-02-27_rodez` (il mentait déjà, la perte de favori était inévitable)
+    et le N3F Muret réintroduit sous son propre `id`.
+  - **« Bruits de Couloirs » est la troupe** (école de théâtre de La Primaube), **« Côté cour... côté jardin »
+    le spectacle** : deux agents donnaient chacun un des deux noms. Titre fusionné.
+  - Adresse de l'**Amphithéâtre de Rodez** harmonisée sur la variante majoritaire (**4 bd du 122e R.I.**,
+    44.3533068 / 2.5681351) : 6 fiches portaient « 17 bd du 122e R.I. » et des coordonnées décalées.
+  - **Supprimés** : les 2 quines de **Salmiech** (hors zone), le **Téléthon des pompiers de Baraqueville**
+    (05/12) et le **marché de Noël de Baraqueville** (12/12) — leurs pages ont disparu, l'agenda municipal
+    s'arrête au 27/11 et l'API média ne porte que la Tombola de Noël (tirage 13/12 14 h) ; vérifié deux fois.
+- **Absences établies (ne pas re-chercher avant la date indiquée)**
+  - **Stages de Noël : 3e semaine d'absence, mais la date est connue.** `mjcrodez.mapado.com` n'expose que
+    9 billetteries, aucune n'est un stage, et le bandeau annonce l'ouverture des inscriptions le **29 novembre**
+    (MJC d'Onet : **28 novembre**). L'actualité `stages-et-activites-decouverte-noel-2026` est en 404 ;
+    celle de l'an dernier avait été publiée le **25/11**. **À reprendre le 25/11, c'est imminent.**
+    Côté sport : `rodezaveyronfootball.com/stages/` n'annonce toujours que « vos stages de juillet ».
+  - **« Mes vacances au musée » de Noël : inexistant.** Les fiches Tourinsoft de l'édition de Toussaint
+    répondent **410 Gone** sur les quatre façades et aucune nouvelle n'a été créée ; `rodez.tickeasy.com` ne vend
+    que **6 produits permanents**. Agendas : Soulages s'arrête au 13/12 pour les créneaux datés, Fenaille au 16/12,
+    Denys-Puech au 06/12. **Rien du 23/12 au 04/01 côté musées** — mais la fenêtre n'est plus vide pour autant :
+    ciné-club de Goutrens le 23/12, **expo de crèches à l'église d'Ayrinhac (Bertholène) du 20/12 au 03/01**,
+    gospel à Saint-Amans le 01/01.
+  - **Nuits de la lecture (20-24/01/2027, thème « L'enfance ») : aucun programme local.** L'API cartographique
+    `nuitsdelalecture.fr/api/map/evenement/markers` fonctionne (8 512 points) mais **les 18 points autour de Rodez
+    portent tous « Thème 2026 »** : c'est l'édition passée. `/api/map/evenement?departement=12` répond 504.
+  - **Vacances d'hiver (6-22/02) : rien de neuf**, trois agrégateurs donnent des listes déjà en base.
+    **Programmes de janvier-février : rien nulle part** (Ville, Patio, centre social, médiathèques).
+    **Programme de décembre des « Activités parents-enfants » : toujours pas publié** (les 2 fiches Tourinsoft
+    portent encore novembre). **À reprendre mi-janvier pour février.**
+  - **Rodez Basket : 6e échec, mais la cause est trouvée** — le club a été **relégué en Prénationale masculine**
+    pour 2026-2027 (Centre Presse). Site officiel **`rodezbasketaveyron.fr`** (répond 200) mais ses actualités
+    s'arrêtent en **août 2025**. **Contacts : 06 65 12 73 30 / contact@rodezbasketaveyron.fr — un appel est
+    probablement le seul moyen.**
+  - **Aucun cirque de passage, aucun carnaval, aucune chandeleur, aucune galette en zone.** Seul « Sakatu Tseule »
+    (02/12, Carcenac-Peyralès, dès 3 ans) est retenu. Carnaval de Luc-la-Primaube **13/03/2027**, hors fenêtre.
+    **Montrozier reste fermé** jusqu'en avril ; **Terra Memoria** toujours sans événement daté (05 65 44 69 27).
+  - **Haras de Rodez : 8e veille sans animation enfants** (Festi'Liens du 28/11 mis à part, déjà en base).
+- **À rechercher explicitement le 25/11** : le **programme « Rodez en Fête » 2026** (API média + page
+  « animations » + l'article « où sortir ce week-end » de Centre Presse du jeudi soir) ; les **horaires des 5
+  déambulations des Enjoliveurs** (le contrat DEC2026/303 dit « à déterminer sur la feuille de route » — seul
+  l'OT au 05 65 75 76 77 ou la mairie au 05 65 77 88 00 peuvent répondre) ; les **stages de Noël** (MJC Rodez
+  le 29/11, MJC Onet le 28/11, Patio après le 24/12) ; le **programme de décembre des Activités parents-enfants**
+  et des maisons de quartier ; le **programme vacances 11-17 ans de la Ville** ; les **ciné-goûters du Fauteuil
+  Rouge de Baraqueville** (programmation hebdomadaire) ; les **marchés de Noël** d'Onet, Olemps, Sainte-Radegonde,
+  Marcillac et Baraqueville ; les **heures des matchs N3F et Pré-Nationale du ROC** (9e et 2e échec) ;
+  le **calendrier de Rodez Basket** (par téléphone) ; la **fin des bébés nageurs d'Aquavallon** (05 65 77 85 50) ;
+  l'horaire de **Rodez AF 2 - Toulouse FC 2** du 07/03.
